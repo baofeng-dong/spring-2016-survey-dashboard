@@ -1,0 +1,43 @@
+#line-chart, #surveyor-pie-chart, #wk-bar-chart, #route-pie-chart, #surveyor-count, #surveyor-route, #route-count
+{
+  max-width: 1000px;
+  width: 100%;
+  height: auto;
+  display: none;
+}
+
+
+#button-header {
+padding-left: 20px;
+padding-bottom: 10px;
+display: none; 
+}
+
+#filter_line {
+overflow: scroll;
+height: 300px;
+
+}
+
+#surveyor-pct {
+  max-width: 1000px;
+  width: 100%;
+  height: auto;
+  background-color: LightSteelBlue;
+}
+
+#route-pct {
+  max-width: 1000px;
+  width: 100%;
+  height: auto;
+  background-color: Azure;
+}
+
+#rte-count {
+  max-width: 1000px;
+  width: 100%;
+  height: auto;
+  background-color: rgba(230,230,250,0.6);
+
+}
+

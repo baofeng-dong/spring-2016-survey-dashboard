@@ -1,0 +1,96 @@
+
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin:10px">
+
+<table>
+  <tr>
+    <td style="padding-right:1em">
+      <strong>Select Route:</strong>
+    </td>
+    <td>
+        <div class="dropdown">
+          <button id="line_btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Routes
+          <span class="caret"></span></button>
+          <ul id="filter_line" class="dropdown-menu scrollable-menu" role="menu">
+            <li role="presentation" class="divider"></li>    
+            <li><a href="#">Surveyor Count</a></li>
+            <li><a href="#">Route Count</a></li>
+            <li><a href="#">DOW Count</a></li>
+            {% for route in routes %}
+              <li><a href="#">{{ route[1] }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+    </td>
+  </tr>
+</table>
+</div>
+
+<div id="button-header">
+    <input type="button"  value="Hide" id="toggle">
+</div>
+
+<div id="surveyor-route">
+  <table id="route-pct" class="table table-bordered">
+    <tr>
+        <th class="text-center">Surveyor</th>
+        <th class="text-center">Route</th>
+        <th class="text-center">Count</th>
+        <th class="text-center">Pct Route</th>
+        <th class="text-center">Pct</th>
+    </tr>
+  </table>
+</div>
+
+
+<div id="line-chart" style="display:none">
+
+</div>
+
+
+<div id="surveyor-count">
+  <table id="surveyor-pct" class="table table-bordered">
+    <tr>
+        <th class="text-center">Surveyor</th>
+        <th class="text-center">Count</th>
+        <th class="text-center">Pct</th>
+    </tr>
+  </table>
+</div>
+
+<div id="surveyor-pie-chart" style="display:none">
+
+</div>
+
+
+
+<div id="route-count" class="content">
+  <table id="rte-count" class="table table-bordered">
+    <tr>
+        <th class="text-center">Route</th>
+        <th class="text-center">Count</th>
+        <th class="text-center">Pct</th>
+    </tr>
+  </table>
+
+</div>
+
+<div id="route-pie-chart" style="display:none">
+
+</div>
+
+
+<div id="wk-bar-chart" style="display:none">
+
+</div>
+<script>
+    var routes = {{routes|tojson|safe}};
+</script>
+
+<script type="text/javascript" src="../../static/js/sroutes.js"></script>
+
+{% endblock %}
+
