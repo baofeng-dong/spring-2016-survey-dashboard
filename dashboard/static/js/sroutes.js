@@ -30,7 +30,7 @@ function toggle_tb(div_id_tb){
 function append_img(div_id){
     var div = $(div_id);
     var rte = routeskey[sel_line]
-    div.empty().prepend('<object data="http://localhost:5000/static/image/' + rte + '.svg?1222259157.415" type="image/svg+xml" width="100%" />');
+    div.empty().prepend('<object data='+base+'static/image/' + rte + '.svg?1222259157.415" type="image/svg+xml" width="100%" />');
 }
 
 //build table using JSON data in jquery

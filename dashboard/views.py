@@ -48,7 +48,7 @@ def srdata():
         srresults.append([row.surveyors.name,row.rte,row.num_surveys,float(row.pct_rte),float(row.pct)])
         line_chart.add(row.surveyors.name,row.num_surveys)
 
-    line_chart.render_to_file(os.path.join(DIRPATH, "static\\image\\{0}.svg".format(rte)))
+    line_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}.svg".format(rte)))
     
     
     
@@ -86,8 +86,8 @@ def userdata():
         print("type",type(row))
         userresults.append([row[0],int(row[1]),float(row[2])])
         pie_chart.add(row[0],float(row[2]))
-    
-    pie_chart.render_to_file(os.path.join(DIRPATH, "static\\image\\{0}.svg".format(rte)))
+    app.logger.debug(os.getenv('USER'))
+    pie_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}.svg".format(rte)))
     
     return jsonify(data=userresults)
 
@@ -112,7 +112,7 @@ def rtedata():
         print(row)
         rteresults.append([row[0],int(row[1]),float(row[2])])
         pie_chart.add(row[0],float(row[2]))
-    pie_chart.render_to_file(os.path.join(DIRPATH, "static\\image\\{0}.svg".format(rte)))
+    pie_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}.svg".format(rte)))
     
     return jsonify(data=rteresults)
 
@@ -136,7 +136,7 @@ def surveywkd():
     for label in labels:
         print(label)
     #bar_chart.x_labels = 'Sunday','Friday','Monday','Tuesday','Wednesday','Thursday','Saturday'
-    bar_chart.render_to_file(os.path.join(DIRPATH, "static\\image\\{0}.svg".format(rte)))
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}.svg".format(rte)))
 
     return jsonify(data=wkresults)
 
