@@ -141,7 +141,7 @@ def surveywkd():
     return jsonify(data=wkresults)
 
 
-@app.route('/results')
+@app.route('/fareresults')
 def fareresults():
     # return dropdown list dynamically
     #build a question list key value dropdown
