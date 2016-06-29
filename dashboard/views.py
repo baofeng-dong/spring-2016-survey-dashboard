@@ -3,7 +3,7 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 
-from flask import render_template,request,jsonify
+from flask import render_template,request,jsonify,url_for
 from sqlalchemy.orm import sessionmaker,scoped_session 
 from dashboard import app,db
 from dashboard.models import Sroutes,Scount,Surveyors,Surveywkd, Survey
@@ -26,7 +26,7 @@ def index():
 @app.route('/sroutes')
 def sroutes():
     # return routes list dynamically
-
+    app.logger.debug(url_for('index'))
     routes = db.session.execute(""" 
         select rte,rte_desc
         from rtedesc_lookup""")
