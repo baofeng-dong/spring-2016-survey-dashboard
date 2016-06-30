@@ -56,15 +56,6 @@ function build_chart(chart){
     $("#surveyor-pie-chart").empty().append(chart)
 }
 
-//update line graph image 
-function update_chart(div_id){
-    var div =$(div_id);
-    new_data = "http://localhost:5000/static/image/' + rte + '.svg" + new Date().getTime();
-    div.attr("data",new_data);
-    console.log("newsrc:" + new_data);
-    console.log("update chart");
-}
-
 
 var sel_line = null;
 

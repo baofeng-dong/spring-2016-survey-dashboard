@@ -27,14 +27,14 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/dashboard/">Fare Survey</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">Fare Survey</a>
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
 
-<li><a href="/dashboard/fare/overview"><b>Overview</b></a></li>
-<li><a href="/dashboard/templates/pie.html"><b>Results</b></a></li>
-<li><a href="/dashboard/fare/methodology"><b>Methodology</b></a></li>
+<li><a href="{{ url_for('index') }}sroutes"><b>Overview</b></a></li>
+<li><a href="{{ url_for('index') }}fareresults"><b>Results</b></a></li>
+<li><a href="{{ url_for('index') }}methodology"><b>Methodology</b></a></li>
 
       </ul>
     </div>

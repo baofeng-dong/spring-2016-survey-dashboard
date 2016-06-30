@@ -88,7 +88,7 @@
 </div>
 <script>
     var routes = {{routes|tojson|safe}};
-    var base = {{url_for('index')}};
+    var base = '{{url_for('index')}}';
 </script>
 
 <script type="text/javascript" src="{{ url_for('index') }}static/js/sroutes.js"></script>
