@@ -146,9 +146,15 @@ def fareresults():
     # return dropdown list dynamically
     #build a question list key value dropdown
 
-    questions = [("Transfer Rate","1"),("Fare Agency","2")]
-    srresults = []
-        
+    query = db.session.execute("""
+                select num, questions
+                from ques_lookup""")
+    
+    questions = []
+    for question in query:
+        questions.append([question[0],question[1]])
+
+
     return render_template("fareresults.html",questions = questions)
 
 
