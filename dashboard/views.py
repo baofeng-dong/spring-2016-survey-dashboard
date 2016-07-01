@@ -161,7 +161,9 @@ def fareresults():
 @app.route('/transferdata')
 def transferdata():
     transferresults = []
-    rte = request.args.get('rte')
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Number of Transfers'
     results = db.session.execute("""
             WITH survey as (
             select *
@@ -193,7 +195,9 @@ def transferdata():
     for row in results:
         print(row[0],row[1],row[2])
         transferresults.append([row[0],int(row[1]),float(row[2])])
-        
+        bar_chart.add(row[0],int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     return jsonify(data=transferresults)
 
 
