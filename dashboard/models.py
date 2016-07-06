@@ -18,7 +18,7 @@ Database Models
 """
 
 class Sroutes(db.Model):
-    __tablename__ = "sroutes"    
+    __tablename__ = "sroutes"
     id = Column(Integer, primary_key = True)
     surveyor = Column(Text, ForeignKey("surveyors.surveyor"))
     surveyors = relationship("Surveyors", foreign_keys=surveyor)

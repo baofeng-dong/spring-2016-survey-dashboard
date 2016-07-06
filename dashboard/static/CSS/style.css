@@ -1,4 +1,4 @@
-#line-chart, #surveyor-pie-chart, #wk-bar-chart, #route-pie-chart, #surveyor-count, #surveyor-route, #route-count
+#line-chart, #surveyor-pie-chart, #wk-bar-chart, #route-pie-chart, #surveyor-count, #surveyor-route, #route-count, #transfer, #trip
 {
   max-width: 1000px;
   width: 100%;
@@ -46,4 +46,5 @@ height: 300px;
   padding-top: 80px;
 
 }
+
 

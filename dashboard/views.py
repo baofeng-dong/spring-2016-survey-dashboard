@@ -43,7 +43,8 @@ def srdata():
     rte = request.args.get('rte')
     line_chart = pygal.HorizontalBar(print_values=True, width=800, height=600, disable_xml_declaration=True)
     line_chart.title = 'Completed Surveys for Route %s' % (rte)
-    
+
+
     for row in Sroutes.query.filter_by(rte=rte).order_by(Sroutes.pct_rte.desc()).all():
         srresults.append([row.surveyors.name,row.rte,row.num_surveys,float(row.pct_rte),float(row.pct)])
         line_chart.add(row.surveyors.name,row.num_surveys)
@@ -52,23 +53,13 @@ def srdata():
     
     
     
-    return jsonify(data=srresults)
+    return jsonify(data=srresults, rte=rte)
 
 
 @app.route('/userdata')
 def userdata():
     userresults = []
     rte = request.args.get('rte')
-    """subq = db.session.query(func.sum(Sroutes.num_surveys).label('sumall')).\
-        select_from(Sroutes).scalar()
-    app.logger.debug(subq)
-    qry_pct = db.session.query(Sroutes.surveyor,
-                func.sum(Sroutes.num_surveys).label('Count'),
-                (cast(100*func.sum(Sroutes.num_surveys), Float) / subq).label('surveyor_pct')).\
-                group_by(Sroutes.surveyor).order_by((cast(100*func.sum(Sroutes.num_surveys), Float) / subq).desc()).all()
-
-    for row in qry_pct:
-        userresults.append([row.surveyor,int(row.Count),round(row.surveyor_pct,2)])"""
 
     pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True)
     pie_chart.title = 'Percentage of Completed Surveys by Surveyor'
@@ -163,7 +154,7 @@ def transferdata():
     transferresults = []
     qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
-    bar_chart.title = 'Number of Transfers'
+    bar_chart.title = 'Number of Transfers in One Trip'
     results = db.session.execute("""
             WITH survey as (
             select *
@@ -199,6 +190,31 @@ def transferdata():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     return jsonify(data=transferresults)
+
+
+@app.route('/tripdata')
+def tripdata():
+    tripresults = []
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Number of Trips by Range in a Week'
+    results = db.session.execute("""
+            select 10 * s.d as trange, count(f.q3_trip_count) as count,
+            round(count(f.q3_trip_count)*100/(select count (*) as sum from fare_survey_2016 where willing = '1' and 
+            q3_trip_count is not null)::numeric,2) as pct
+            from generate_series(0, 7) s(d)
+            left outer join fare_survey_2016 f on s.d = floor(f.q3_trip_count / 10)
+            where f.willing = '1' and f.q3_trip_count is not null
+            group by s.d
+            order by s.d""")
+    for row in results:
+        print(row[0],row[1],row[2])
+        tripresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+
+    return jsonify(data=tripresults)
 
 
 @app.route('/faretype')

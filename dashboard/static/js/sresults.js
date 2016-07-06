@@ -82,6 +82,8 @@ function reset(){
     $("#wk-bar-chart").hide();
     $("#button-header").hide();
     $("#toggle").attr('value','Hide');
+    $("#transfer").hide();
+    $("#trip").hide();
 }
 
 
@@ -114,19 +116,21 @@ $('#filter_line a').on('click', function() {
         });
 
     }
-    else if (questionkey[sel_line] == 300) {
-        
-        $("#surveyor-count").show();
-        $("#surveyor-pie-chart").show();
+    else if (questionkey[sel_line] == 2) {
+        $("#line-chart").show();
+        $("#trip").show();
+        $("#line-chart").show();
         $("#button-header").show();
-        $.getJSON('userdata', args, function(data) {
-            tb_id = "#surveyor-pct"
-            div_id = "#surveyor-pie-chart"
-            div_id_tb = "#surveyor-count"
+
+        $.getJSON('tripdata', args, function(data) {
+            
+            tb_id = "#trip-table"
+            div_id_ln = "#line-chart"
+            div_id_tb = "#trip"
             data = data.data;
             console.log(data)
             build_table(data,tb_id);
-            append_img(div_id);
+            append_img(div_id_ln);
             toggle_tb(div_id_tb);
            
         });
