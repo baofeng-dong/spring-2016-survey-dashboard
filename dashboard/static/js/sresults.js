@@ -84,6 +84,7 @@ function reset(){
     $("#toggle").attr('value','Hide');
     $("#transfer").hide();
     $("#trip").hide();
+    $("#agency").hide();
 }
 
 
@@ -119,7 +120,6 @@ $('#filter_line a').on('click', function() {
     else if (questionkey[sel_line] == 2) {
         $("#line-chart").show();
         $("#trip").show();
-        $("#line-chart").show();
         $("#button-header").show();
 
         $.getJSON('tripdata', args, function(data) {
@@ -127,6 +127,24 @@ $('#filter_line a').on('click', function() {
             tb_id = "#trip-table"
             div_id_ln = "#line-chart"
             div_id_tb = "#trip"
+            data = data.data;
+            console.log(data)
+            build_table(data,tb_id);
+            append_img(div_id_ln);
+            toggle_tb(div_id_tb);
+           
+        });
+    }
+        else if (questionkey[sel_line] == 3) {
+        $("#line-chart").show();
+        $("#agency").show();
+        $("#button-header").show();
+
+        $.getJSON('agencydata', args, function(data) {
+            
+            tb_id = "#agency-table"
+            div_id_ln = "#line-chart"
+            div_id_tb = "#agency"
             data = data.data;
             console.log(data)
             build_table(data,tb_id);

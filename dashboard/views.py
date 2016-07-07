@@ -217,6 +217,47 @@ def tripdata():
     return jsonify(data=tripresults)
 
 
+@app.route('/agencydata')
+def agencydata():
+    agencyresults = []
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Number of Faretypes by Agency'
+    results = db.session.execute("""
+            WITH survey as (
+            select *
+                    from fare_survey_2016 
+                    where
+                        willing = '1' and
+                        q4_fare_agency is not null),
+                    
+            fare_agency as (
+            select
+                case 
+                    when q4_fare_agency = '1' then 'TriMet'
+                    when q4_fare_agency = '2' then 'C-TRAN fare'
+                    when q4_fare_agency = '3' then 'Streetcar fare'
+                end as Fareagency,
+                count(*) as count,
+                round( count(*) * 100 / (
+                    select count(*)
+                    from survey)::numeric,2) as pct
+            from survey
+            where q4_fare_agency is not null
+            group by q4_fare_agency
+            order by q4_fare_agency::integer)
+
+            select * from fare_agency""")
+    for row in results:
+        print(row[0],row[1],row[2])
+        agencyresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+
+    return jsonify(data=agencyresults)
+
+
 @app.route('/faretype')
 def faretype():
     fareresults = []
