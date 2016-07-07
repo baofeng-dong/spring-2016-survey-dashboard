@@ -261,7 +261,9 @@ def agencydata():
 @app.route('/faretype')
 def faretype():
     fareresults = []
-    rte = request.args.get('rte')
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Number of Fares by Faretypes'
     results = db.session.execute("""
             WITH survey as (
             select *
@@ -298,6 +300,9 @@ def faretype():
     for row in results:
         print(row[0],row[1],row[2])
         fareresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
     return jsonify(data = fareresults)
     
