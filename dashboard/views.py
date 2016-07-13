@@ -340,7 +340,8 @@ def purchasetype():
                     from survey)::numeric,2) as pct
             from survey
             where q6_purchase_type is not null
-            group by q6_purchase_type)  
+            group by q6_purchase_type
+            order by count)
 
             select * from purchase_type""")
             
@@ -352,3 +353,28 @@ def purchasetype():
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
     return jsonify(data = purchaseresults)
+
+
+@app.route('/daypass')
+def daypass():
+    daypassresults = []
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Number of One-way Trips on a Day Pass'
+    results = db.session.execute("""select q7_day_fare::integer,
+            count(*) as count,
+            round(100*count(*)/(select count(*) from fare_survey_2016
+            where willing = '1' and q7_day_fare is not null)::numeric,2) as pct
+            from fare_survey_2016
+            where willing = '1' and q7_day_fare is not null
+            group by q7_day_fare::integer
+            order by q7_day_fare::integer""")
+            
+    for row in results:
+        print(row[0],row[1],row[2])
+        daypassresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    return jsonify(data = daypassresults)

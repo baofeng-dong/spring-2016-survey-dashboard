@@ -191,6 +191,24 @@ $('#filter_line a').on('click', function() {
            
         });
     }
+    else if (questionkey[sel_line] == 6) {
+        $("#line-chart").show();
+        $("#daypass").show();
+        $("#button-header").show();
+
+        $.getJSON('daypass', args, function(data) {
+            
+            tb_id = "#daypass-table"
+            div_id_ln = "#line-chart"
+            div_id_tb = "#daypass"
+            data = data.data;
+            console.log(data)
+            build_table(data,tb_id);
+            append_img(div_id_ln);
+            toggle_tb(div_id_tb);
+           
+        });
+    }
     else if (questionkey[sel_line] == 310) {
       
         $("#route-count").show();
