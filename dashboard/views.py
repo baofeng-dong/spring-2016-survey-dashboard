@@ -307,7 +307,48 @@ def faretype():
     return jsonify(data = fareresults)
     
     
-def purtype():
-    fareresults = []
-    rte = request.args.get('rte')
-    results = db.session.execute("""""")
+@app.route('/purchasetype')
+def purchasetype():
+    purchaseresults = []
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Number of Fares by Purchase Types'
+    results = db.session.execute("""
+            WITH survey as (
+            select *
+                    from fare_survey_2016 
+                    where
+                        willing = '1' and 
+                        q6_purchase_type is not null and
+                        q6_purchase_type != ''),
+                    
+            purchase_type as (
+            select
+                case 
+                    when q6_purchase_type = '1' then 'Single 2.5 hour ticket'
+                    when q6_purchase_type = '2' then 'Book of 10 2.5 hour tickets'
+                    when q6_purchase_type = '3' then '1-Day Pass'
+                    when q6_purchase_type = '4' then 'Book of 5 1-Day Passes'
+                    when q6_purchase_type = '5' then '7-Day Pass'
+                    when q6_purchase_type = '6' then '14-Day Pass'
+                    when q6_purchase_type = '7' then 'Monthly Pass'
+                    when q6_purchase_type = '8' then 'Annual Pass'
+                end as purchasetype,
+                count(*) as count,
+                round( count(*) * 100 / (
+                    select count(*)
+                    from survey)::numeric,2) as pct
+            from survey
+            where q6_purchase_type is not null
+            group by q6_purchase_type)  
+
+            select * from purchase_type""")
+            
+    for row in results:
+        print(row[0],row[1],row[2])
+        purchaseresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    return jsonify(data = purchaseresults)

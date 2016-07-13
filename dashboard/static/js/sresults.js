@@ -85,6 +85,8 @@ function reset(){
     $("#transfer").hide();
     $("#trip").hide();
     $("#agency").hide();
+    $("faretype").hide();
+    $("purchasetype").hide();
 }
 
 
@@ -153,7 +155,7 @@ $('#filter_line a').on('click', function() {
            
         });
     }
-            else if (questionkey[sel_line] == 4) {
+        else if (questionkey[sel_line] == 4) {
         $("#line-chart").show();
         $("#faretype").show();
         $("#button-header").show();
@@ -163,6 +165,24 @@ $('#filter_line a').on('click', function() {
             tb_id = "#faretype-table"
             div_id_ln = "#line-chart"
             div_id_tb = "#faretype"
+            data = data.data;
+            console.log(data)
+            build_table(data,tb_id);
+            append_img(div_id_ln);
+            toggle_tb(div_id_tb);
+           
+        });
+    }
+    else if (questionkey[sel_line] == 5) {
+        $("#line-chart").show();
+        $("#purchasetype").show();
+        $("#button-header").show();
+
+        $.getJSON('purchasetype', args, function(data) {
+            
+            tb_id = "#purchasetype-table"
+            div_id_ln = "#line-chart"
+            div_id_tb = "#purchasetype"
             data = data.data;
             console.log(data)
             build_table(data,tb_id);
