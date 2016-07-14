@@ -10,6 +10,10 @@ from dashboard.models import Sroutes,Scount,Surveyors,Surveywkd, Survey
 from sqlalchemy import Table, Column, Float, Integer, String, MetaData, ForeignKey, cast, Numeric
 from sqlalchemy.sql import func
 import pygal
+from pygal.style import DarkSolarizedStyle
+from pygal.style import LightStyle
+from pygal.style import CleanStyle
+from pygal.style import DarkStyle
 import codecs
 import json
 import base64
@@ -41,7 +45,7 @@ def sroutes():
 def srdata():
     srresults = []
     rte = request.args.get('rte')
-    line_chart = pygal.HorizontalBar(print_values=True, width=800, height=600, disable_xml_declaration=True)
+    line_chart = pygal.HorizontalBar(print_values=True, width=800, height=600, disable_xml_declaration=True, style=CleanStyle)
     line_chart.title = 'Completed Surveys for Route %s' % (rte)
 
 
@@ -61,7 +65,7 @@ def userdata():
     userresults = []
     rte = request.args.get('rte')
 
-    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True)
+    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True, style=CleanStyle)
     pie_chart.title = 'Percentage of Completed Surveys by Surveyor'
 
     results = db.session.execute("""select 
@@ -87,7 +91,7 @@ def userdata():
 def rtedata():
     rteresults = []
     rte = request.args.get('rte')
-    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True)
+    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True, style=CleanStyle)
     pie_chart.title = 'Percentage of Completed Surveys by Route'
     
     results = db.session.execute("""select 
@@ -113,7 +117,7 @@ def surveywkd():
     wkresults = []
     labels =[]
     rte = request.args.get('rte')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
     bar_chart.title = 'Completed Surveys by Day of Week'
     
     #results = Surveywkd.query.with_entities(Surveywkd.dow,Surveywkd.count).all()
@@ -146,14 +150,16 @@ def fareresults():
         questions.append([question[0],question[1]])
 
 
-    return render_template("fareresults.html",questions = questions)
+    return render_template("fareresults.html",questions=questions)
 
 
 @app.route('/transferdata')
 def transferdata():
     transferresults = []
+    labels = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    
     bar_chart.title = 'Number of Transfers in One Trip'
     results = db.session.execute("""
             WITH survey as (
@@ -186,8 +192,12 @@ def transferdata():
     for row in results:
         print(row[0],row[1],row[2])
         transferresults.append([row[0],int(row[1]),float(row[2])])
-        bar_chart.add(row[0],int(row[1]))
-    
+        labels.append(row[0])
+        bar_chart.add(row[0],[{'value':int(row[1])}])
+    #bar_chart.x_labels = labels
+    for label in labels:
+        print(label)
+    #bar_chart.x_labels = "No","Transfer 1 time", "Transfer 2 times", "Transfer 3 or more"
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     return jsonify(data=transferresults)
 
@@ -196,7 +206,7 @@ def transferdata():
 def tripdata():
     tripresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
     bar_chart.title = 'Number of Trips by Range in a Week'
     results = db.session.execute("""
             select 10 * s.d as trange, count(f.q3_trip_count) as count,
@@ -221,7 +231,7 @@ def tripdata():
 def agencydata():
     agencyresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
     bar_chart.title = 'Number of Faretypes by Agency'
     results = db.session.execute("""
             WITH survey as (
@@ -262,7 +272,7 @@ def agencydata():
 def faretype():
     fareresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
     bar_chart.title = 'Number of Fares by Faretypes'
     results = db.session.execute("""
             WITH survey as (
@@ -311,7 +321,7 @@ def faretype():
 def purchasetype():
     purchaseresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
     bar_chart.title = 'Number of Fares by Purchase Types'
     results = db.session.execute("""
             WITH survey as (
@@ -359,7 +369,7 @@ def purchasetype():
 def daypass():
     daypassresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
     bar_chart.title = 'Number of One-way Trips on a Day Pass'
     results = db.session.execute("""select q7_day_fare::integer,
             count(*) as count,
@@ -378,3 +388,5 @@ def daypass():
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
     return jsonify(data = daypassresults)
+
+

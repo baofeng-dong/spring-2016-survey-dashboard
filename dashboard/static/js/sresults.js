@@ -85,8 +85,9 @@ function reset(){
     $("#transfer").hide();
     $("#trip").hide();
     $("#agency").hide();
-    $("faretype").hide();
-    $("purchasetype").hide();
+    $("#faretype").hide();
+    $("#purchasetype").hide();
+    $("#daypass").hide();
 }
 
 
