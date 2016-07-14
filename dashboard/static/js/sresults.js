@@ -88,6 +88,7 @@ function reset(){
     $("#faretype").hide();
     $("#purchasetype").hide();
     $("#daypass").hide();
+    $("#singlefare").hide();
 }
 
 
@@ -202,6 +203,24 @@ $('#filter_line a').on('click', function() {
             tb_id = "#daypass-table"
             div_id_ln = "#line-chart"
             div_id_tb = "#daypass"
+            data = data.data;
+            console.log(data)
+            build_table(data,tb_id);
+            append_img(div_id_ln);
+            toggle_tb(div_id_tb);
+           
+        });
+    }
+    else if (questionkey[sel_line] == 7) {
+        $("#line-chart").show();
+        $("#singlefare").show();
+        $("#button-header").show();
+
+        $.getJSON('singlefaretrip', args, function(data) {
+            
+            tb_id = "#singlefare-table"
+            div_id_ln = "#line-chart"
+            div_id_tb = "#singlefare"
             data = data.data;
             console.log(data)
             build_table(data,tb_id);

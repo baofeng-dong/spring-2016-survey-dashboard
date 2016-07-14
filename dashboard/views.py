@@ -390,3 +390,29 @@ def daypass():
     return jsonify(data = daypassresults)
 
 
+@app.route('/singlefaretrip')
+def singlefare():
+    singlefareresults = []
+    qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart.title = 'Number of One-way/Round Trips on a Single Fare'
+    results = db.session.execute("""select case
+                                        when q8_single_fare= '1' then 'One-way trip'
+                                        when q8_single_fare='2' then 'Round-trip'
+                                    end as q8_single_fare,
+                                    count(*) as count,
+                                    round(100*count(*)/(select count(*) from fare_survey_2016
+                                    where willing = '1' and q8_single_fare is not null)::numeric,2) as pct
+                                    from fare_survey_2016
+                                    where willing = '1' and q8_single_fare is not null
+                                    group by q8_single_fare
+                                    order by q8_single_fare""")
+            
+    for row in results:
+        print(row[0],row[1],row[2])
+        singlefareresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    return jsonify(data = singlefareresults)
