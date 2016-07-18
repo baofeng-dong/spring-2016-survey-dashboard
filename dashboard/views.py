@@ -45,7 +45,7 @@ def sroutes():
 def srdata():
     srresults = []
     rte = request.args.get('rte')
-    line_chart = pygal.HorizontalBar(print_values=True, width=800, height=600, disable_xml_declaration=True, style=CleanStyle)
+    line_chart = pygal.HorizontalBar(print_values=True, width=800, height=600, disable_xml_declaration=True)
     line_chart.title = 'Completed Surveys for Route %s' % (rte)
 
 
@@ -65,7 +65,7 @@ def userdata():
     userresults = []
     rte = request.args.get('rte')
 
-    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True, style=CleanStyle)
+    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True)
     pie_chart.title = 'Percentage of Completed Surveys by Surveyor'
 
     results = db.session.execute("""select 
@@ -91,7 +91,7 @@ def userdata():
 def rtedata():
     rteresults = []
     rte = request.args.get('rte')
-    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True, style=CleanStyle)
+    pie_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True)
     pie_chart.title = 'Percentage of Completed Surveys by Route'
     
     results = db.session.execute("""select 
@@ -117,7 +117,7 @@ def surveywkd():
     wkresults = []
     labels =[]
     rte = request.args.get('rte')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Completed Surveys by Day of Week'
     
     #results = Surveywkd.query.with_entities(Surveywkd.dow,Surveywkd.count).all()
@@ -158,7 +158,7 @@ def transferdata():
     transferresults = []
     labels = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     
     bar_chart.title = 'Number of Transfers in One Trip'
     results = db.session.execute("""
@@ -206,7 +206,7 @@ def transferdata():
 def tripdata():
     tripresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Trips by Range in a Week'
     results = db.session.execute("""
             select 10 * s.d as trange, count(f.q3_trip_count) as count,
@@ -231,7 +231,7 @@ def tripdata():
 def agencydata():
     agencyresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Faretypes by Agency'
     results = db.session.execute("""
             WITH survey as (
@@ -272,7 +272,7 @@ def agencydata():
 def faretype():
     fareresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Fares by Faretypes'
     results = db.session.execute("""
             WITH survey as (
@@ -321,7 +321,7 @@ def faretype():
 def purchasetype():
     purchaseresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Fares by Purchase Types'
     results = db.session.execute("""
             WITH survey as (
@@ -369,7 +369,7 @@ def purchasetype():
 def daypass():
     daypassresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of One-way Trips on a Day Pass'
     results = db.session.execute("""select q7_day_fare::integer,
             count(*) as count,
@@ -394,20 +394,20 @@ def daypass():
 def singlefare():
     singlefareresults = []
     qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True, style=CleanStyle)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of One-way/Round Trips on a Single Fare'
     results = db.session.execute("""select case
                                         when q8_single_fare= '1' then 'One-way trip'
                                         when q8_single_fare='2' then 'Round-trip'
-                                    end as q8_single_fare,
-                                    count(*) as count,
-                                    round(100*count(*)/(select count(*) from fare_survey_2016
-                                    where willing = '1' and q8_single_fare is not null)::numeric,2) as pct
-                                    from fare_survey_2016
-                                    where willing = '1' and q8_single_fare is not null
-                                    group by q8_single_fare
-                                    order by q8_single_fare""")
-            
+                                        end as q8_single_fare,
+                                        count(*) as count,
+                                        round(100*count(*)/(select count(*) from fare_survey_2016
+                                        where willing = '1' and q8_single_fare is not null)::numeric,2) as pct
+                                        from fare_survey_2016
+                                        where willing = '1' and q8_single_fare is not null
+                                        group by q8_single_fare
+                                        order by q8_single_fare""")
+                
     for row in results:
         print(row[0],row[1],row[2])
         singlefareresults.append([row[0],int(row[1]),float(row[2])])
