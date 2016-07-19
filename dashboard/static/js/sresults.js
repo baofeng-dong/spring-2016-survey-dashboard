@@ -54,7 +54,6 @@ function build_table(data,tb_id){
 
 var sel_line = null;
 
-    //console.log(routes)
 var questionkey = buildkey(questions);
 
 for (var key in questionkey){
@@ -102,162 +101,22 @@ $('#filter_line a').on('click', function() {
     console.log("qnum: " + qnum)
     $("#line_btn").text(this.text+' ').append('<span class="caret"></span>');
 
-    if (questionkey[sel_line] == 1) {
-        console.log(questionkey[sel_line])
-        
-        $("#transfer").show();
+    $.getJSON('questionsdata', args, function(data) {
+        console.log(data);
+        div_id_ln = "#line-chart"
+        div_id = "#" + data.metadata.id
+        tb_id = div_id + "-table"
+        data = data.data;
+
+        build_table(data,tb_id);
+        append_img(div_id_ln);
+        toggle_tb(div_id);
+        $(div_id).show();
         $("#line-chart").show();
         $("#button-header").show();
-        $.getJSON('transferdata', args, function(data) {
-            tb_id = "#transfer-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#transfer"
-            data = data.data;
-            console.log(data);
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-            
-        });
 
-    }
-    else if (questionkey[sel_line] == 2) {
-        $("#line-chart").show();
-        $("#trip").show();
-        $("#button-header").show();
 
-        $.getJSON('tripdata', args, function(data) {
-            
-            tb_id = "#trip-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#trip"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-        else if (questionkey[sel_line] == 3) {
-        $("#line-chart").show();
-        $("#agency").show();
-        $("#button-header").show();
+    });
 
-        $.getJSON('agencydata', args, function(data) {
-            
-            tb_id = "#agency-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#agency"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-        else if (questionkey[sel_line] == 4) {
-        $("#line-chart").show();
-        $("#faretype").show();
-        $("#button-header").show();
-
-        $.getJSON('faretype', args, function(data) {
-            
-            tb_id = "#faretype-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#faretype"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-    else if (questionkey[sel_line] == 5) {
-        $("#line-chart").show();
-        $("#purchasetype").show();
-        $("#button-header").show();
-
-        $.getJSON('purchasetype', args, function(data) {
-            
-            tb_id = "#purchasetype-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#purchasetype"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-    else if (questionkey[sel_line] == 6) {
-        $("#line-chart").show();
-        $("#daypass").show();
-        $("#button-header").show();
-
-        $.getJSON('daypass', args, function(data) {
-            
-            tb_id = "#daypass-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#daypass"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-    else if (questionkey[sel_line] == 7) {
-        $("#line-chart").show();
-        $("#singlefare").show();
-        $("#button-header").show();
-
-        $.getJSON('singlefaretrip', args, function(data) {
-            
-            tb_id = "#singlefare-table"
-            div_id_ln = "#line-chart"
-            div_id_tb = "#singlefare"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ln);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-    else if (questionkey[sel_line] == 310) {
-      
-        $("#route-count").show();
-        $("#route-pie-chart").show();
-        $("#button-header").show();
-        
-        
-        $.getJSON('rtedata', args, function(data) {
-            tb_id = "#rte-count"
-            div_id_ch = "#route-pie-chart"
-            div_id_tb = "#route-count"
-            data = data.data;
-            console.log(data)
-            build_table(data,tb_id);
-            append_img(div_id_ch);
-            toggle_tb(div_id_tb);
-           
-        });
-    }
-    else if (questionkey[sel_line] == 320) {
-        
-        $("#wk-bar-chart").show();
-        
-        $.getJSON('surveywkd', args, function(data) {
-            div_id = "#wk-bar-chart"
-            data = data.data;
-            console.log(data)
-            append_img(div_id);
-        });
-    }
 
 });

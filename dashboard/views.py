@@ -20,6 +20,7 @@ import base64
 import os,sys
 import time
 from datetime import datetime
+from .metadata import metadata
 
 DIRPATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -144,7 +145,7 @@ def fareresults():
     query = db.session.execute("""
                 select num, questions
                 from ques_lookup""")
-    
+
     questions = []
     for question in query:
         questions.append([question[0],question[1]])
@@ -152,12 +153,40 @@ def fareresults():
 
     return render_template("fareresults.html",questions=questions)
 
+@app.route('/questionsdata')
+def questionsdata():
+    qnum = int(request.args.get('qnum'))
+    data = None
+    if qnum == 1:
+        data = transferdata(qnum)
 
-@app.route('/transferdata')
-def transferdata():
+    if qnum == 2:
+        data = tripdata(qnum)
+
+    if qnum == 3:
+        data = agencydata(qnum)
+
+    if qnum == 4:
+        data = faretype(qnum)
+
+    if qnum == 5:
+        data = purchasetype(qnum)
+
+    if qnum == 6:
+        data = daypass(qnum)
+
+    if qnum == 7:
+        data = singlefare(qnum)
+
+    return jsonify(data=data, metadata=metadata[qnum])
+
+
+
+#@app.route('/transferdata')
+def transferdata(qnum):
     transferresults = []
     labels = []
-    qnum = request.args.get('qnum')
+    
     bar_chart = pygal.Bar(print_values=True)
     
     bar_chart.title = 'Number of Transfers in One Trip'
@@ -199,13 +228,14 @@ def transferdata():
         print(label)
     #bar_chart.x_labels = "No","Transfer 1 time", "Transfer 2 times", "Transfer 3 or more"
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
-    return jsonify(data=transferresults)
+    #return jsonify(data=transferresults)
+    return transferresults
 
 
-@app.route('/tripdata')
-def tripdata():
+#@app.route('/tripdata')
+def tripdata(qnum):
     tripresults = []
-    qnum = request.args.get('qnum')
+    #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Trips by Range in a Week'
     results = db.session.execute("""
@@ -224,13 +254,13 @@ def tripdata():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
 
-    return jsonify(data=tripresults)
+    #return jsonify(data=tripresults)
+    return tripresults
 
-
-@app.route('/agencydata')
-def agencydata():
+#@app.route('/agencydata')
+def agencydata(qnum):
     agencyresults = []
-    qnum = request.args.get('qnum')
+    #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Faretypes by Agency'
     results = db.session.execute("""
@@ -265,13 +295,14 @@ def agencydata():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
 
-    return jsonify(data=agencyresults)
+    #return jsonify(data=agencyresults)
+    return agencyresults
 
 
-@app.route('/faretype')
-def faretype():
+#@app.route('/faretype')
+def faretype(qnum):
     fareresults = []
-    qnum = request.args.get('qnum')
+    #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Fares by Faretypes'
     results = db.session.execute("""
@@ -314,13 +345,13 @@ def faretype():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
-    return jsonify(data = fareresults)
+    #return jsonify(data = fareresults)
+    return fareresults
     
-    
-@app.route('/purchasetype')
-def purchasetype():
+#@app.route('/purchasetype')
+def purchasetype(qnum):
     purchaseresults = []
-    qnum = request.args.get('qnum')
+    #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Fares by Purchase Types'
     results = db.session.execute("""
@@ -362,13 +393,13 @@ def purchasetype():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
-    return jsonify(data = purchaseresults)
+    #return jsonify(data = purchaseresults)
+    return purchaseresults
 
-
-@app.route('/daypass')
-def daypass():
+#@app.route('/daypass')
+def daypass(qnum):
     daypassresults = []
-    qnum = request.args.get('qnum')
+    #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of One-way Trips on a Day Pass'
     results = db.session.execute("""select q7_day_fare::integer,
@@ -387,13 +418,13 @@ def daypass():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
-    return jsonify(data = daypassresults)
+    #return jsonify(data = daypassresults)
+    return daypassresults
 
-
-@app.route('/singlefaretrip')
-def singlefare():
+#@app.route('/singlefaretrip')
+def singlefare(qnum):
     singlefareresults = []
-    qnum = request.args.get('qnum')
+    #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of One-way/Round Trips on a Single Fare'
     results = db.session.execute("""select case
@@ -415,4 +446,5 @@ def singlefare():
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
-    return jsonify(data = singlefareresults)
+    #return jsonify(data = singlefareresults)
+    return singlefareresults
