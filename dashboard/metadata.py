@@ -26,8 +26,11 @@ metadata = {
     7: {
         "headers": ["Trip Type", "Count", "Pct"],
         "id": "singlefare"
+        },
+    8: {
+        "headers": ["Purchase Location", "Count", "Pct"],
+        "id": "purloc"
         }
-
 
 
 }

@@ -177,6 +177,8 @@ def questionsdata():
 
     if qnum == 7:
         data = singlefare(qnum)
+    if qnum == 8:
+        data = purloc(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -448,3 +450,50 @@ def singlefare(qnum):
     
     #return jsonify(data = singlefareresults)
     return singlefareresults
+
+
+def purloc(qnum):
+    locationresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.HorizontalBar(print_values=True)
+    bar_chart.title = 'Fare Purchase Location'
+    results = db.session.execute("""WITH survey as (
+                        select *
+                                from fare_survey_2016 
+                                where
+                                    willing = '1' and
+                                    q9_purchase_loc is not null),
+                                
+                        purchase_location as (
+                        select
+                            case 
+                                when q9_purchase_loc = '1' then 'On board vehicle'
+                                when q9_purchase_loc = '2' then 'Ticket Vending Machine'
+                                when q9_purchase_loc = '3' then 'Retail Store'
+                                when q9_purchase_loc = '4' then 'Work'
+                                when q9_purchase_loc = '5' then 'School'
+                                when q9_purchase_loc = '6' then 'Mobile Ticket App'
+                                when q9_purchase_loc = '7' then 'TriMet Ticket Office'
+                                when q9_purchase_loc = '8' then 'Online'
+                                when q9_purchase_loc = '9' then 'Social Service Agency'
+                                when q9_purchase_loc = '10' then 'Other'
+                            end as Purchaseloc,
+                            count(*) as count,
+                            round( count(*) * 100 / (
+                                select count(*)
+                                from survey)::numeric,2) as pct
+                        from survey
+                        group by q9_purchase_loc
+                        order by count desc)
+
+                        select * from purchase_location""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        locationresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],int(row[1]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return locationresults
