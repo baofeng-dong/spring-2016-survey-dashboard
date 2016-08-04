@@ -17,6 +17,7 @@
           <ul id="filter_line" class="dropdown-menu scrollable-menu" role="menu">
             <li role="presentation" class="divider"></li>    
             <li><a href="#">Surveyor Count</a></li>
+            <li><a href="#">Willing Count</a></li>
             <li><a href="#">Route Count</a></li>
             <li><a href="#">DOW Count</a></li>
             {% for route in routes %}
@@ -46,11 +47,6 @@
 </div>
 
 
-<div id="line-chart" style="display:none">
-
-</div>
-
-
 <div id="surveyor-count">
   <table id="surveyor-pct" class="table table-bordered">
     <tr>
@@ -60,11 +56,6 @@
     </tr>
   </table>
 </div>
-
-<div id="surveyor-pie-chart" style="display:none">
-
-</div>
-
 
 
 <div id="route-count" class="content">
@@ -78,14 +69,26 @@
 
 </div>
 
-<div id="route-pie-chart" style="display:none">
+
+<div id="willing-count" class="content">
+  <table id="willing-table" class="table table-bordered">
+    <tr>
+        <th class="text-center">Surveyor</th>
+        <th class="text-center">Willing</th>
+        <th class="text-center">Count</th>
+        <th class="text-center">Pct Surveyor</th>
+        <th class="text-center">Pct</th>
+    </tr>
+  </table>
 
 </div>
 
 
-<div id="wk-bar-chart" style="display:none">
+<div id="line-chart" style="display:none">
 
 </div>
+
+
 <script>
     var routes = {{routes|tojson|safe}};
     var base = '{{url_for('index')}}';

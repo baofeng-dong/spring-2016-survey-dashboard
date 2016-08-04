@@ -76,6 +76,7 @@ function buildkey(routes){
     routeskey['Surveyor Count'] = 300;
     routeskey['Route Count'] = 310;
     routeskey['DOW Count'] = 320;
+    routeskey['Willing Count'] = 330;
     return routeskey
 }
 
@@ -83,10 +84,8 @@ function reset(){
     $("#surveyor-route").hide();
     $("#line-chart").hide();
     $("#surveyor-count").hide();
-    $("#surveyor-pie-chart").hide();
     $("#route-count").hide();
-    $("#route-pie-chart").hide();
-    $("#wk-bar-chart").hide();
+    $("#willing-count").hide();
     $("#button-header").hide();
     $("#toggle").attr('value','Hide');
 }
@@ -111,14 +110,14 @@ $('#filter_line a').on('click', function() {
         $.getJSON('srdata', args, function(data) {
             tb_id = "#route-pct"
             div_id_ln = "#line-chart"
-            div_id_tb = "#surveyor-route"
+            div_id = "#surveyor-route"
             var chart = data.line_chart;
             console.log(chart);
             data = data.data;
             console.log(data);
             build_table(data,tb_id);
             append_img(div_id_ln);
-            toggle_tb(div_id_tb);
+            toggle_tb(div_id);
             
         });
 
@@ -126,48 +125,65 @@ $('#filter_line a').on('click', function() {
     else if (routeskey[sel_line] == 300) {
         
         $("#surveyor-count").show();
-        $("#surveyor-pie-chart").show();
+        $("#line-chart").show();
         $("#button-header").show();
         $.getJSON('userdata', args, function(data) {
             tb_id = "#surveyor-pct"
-            div_id = "#surveyor-pie-chart"
-            div_id_tb = "#surveyor-count"
+            div_id_ln = "#line-chart"
+            div_id = "#surveyor-count"
             data = data.data;
             console.log(data)
             build_table(data,tb_id);
-            append_img(div_id);
-            toggle_tb(div_id_tb);
+            append_img(div_id_ln);
+            toggle_tb(div_id);
            
         });
     }
     else if (routeskey[sel_line] == 310) {
       
         $("#route-count").show();
-        $("#route-pie-chart").show();
+        $("#line-chart").show();
         $("#button-header").show();
         
         
         $.getJSON('rtedata', args, function(data) {
             tb_id = "#rte-count"
-            div_id_ch = "#route-pie-chart"
-            div_id_tb = "#route-count"
+            div_id_ln = "#line-chart"
+            div_id = "#route-count"
             data = data.data;
             console.log(data)
             build_table(data,tb_id);
-            append_img(div_id_ch);
-            toggle_tb(div_id_tb);
+            append_img(div_id_ln);
+            toggle_tb(div_id);
            
         });
     }
     else if (routeskey[sel_line] == 320) {
         
-        $("#wk-bar-chart").show();
+        $("#line-chart").show();
         
         $.getJSON('surveywkd', args, function(data) {
-            div_id = "#wk-bar-chart"
+            div_id = "#line-chart"
             data = data.data;
             console.log(data)
             append_img(div_id);
+        });
+    }
+    else if (routeskey[sel_line] == 330) {
+        
+        $("#line-chart").show();
+        $("#willing-count").show();
+        $("#button-header").show();
+
+        $.getJSON('willing', args, function(data) {
+            div_id = "#willing-count"
+            tb_id = "#willing-table"
+            div_id_ln = "#line-chart"
+            data = data.data;
+            console.log(data)
+            build_table(data,tb_id);
+            append_img(div_id_ln);
+            toggle_tb(div_id);
         });
     }
 

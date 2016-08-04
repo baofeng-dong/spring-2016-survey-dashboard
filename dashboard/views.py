@@ -137,6 +137,34 @@ def surveywkd():
     return jsonify(data=wkresults)
 
 
+@app.route('/willing')
+def willing():
+    willingresults = []
+    labels =[]
+    rte = request.args.get('rte')
+    bar_chart = pygal.HorizontalBar(print_values=True)
+    bar_chart.title = 'Survey Rejection Rate by Surveyor'
+    
+    #results = Surveywkd.query.with_entities(Surveywkd.dow,Surveywkd.count).all()
+    results = db.session.execute("""select 
+                                        su.name, sc.willing, sc.count, sc.pct_surveyor, sc.pct
+                                        from surveyors su, scount sc
+                                        where su.surveyor=sc.surveyor and
+                                        sc.willing='No' and
+                                        sc.count > 100
+                                        order by sc.pct_surveyor desc""")
+    for row in results:
+        print(row[0],row[1],int(row[2]),float(row[3]),float(row[4]))
+        willingresults.append([row[0],row[1],int(row[2]),float(row[3]),float(row[4])])
+
+        bar_chart.add(row[0],float(row[3]))
+
+
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}.svg".format(rte)))
+
+    return jsonify(data=willingresults)
+
+
 @app.route('/fareresults')
 def fareresults():
     # return dropdown list dynamically

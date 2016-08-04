@@ -123,42 +123,6 @@
 </div>
 
 
-<div id="surveyor-count">
-  <table id="surveyor-pct" class="table table-bordered">
-    <tr>
-        <th class="text-center">Surveyor</th>
-        <th class="text-center">Count</th>
-        <th class="text-center">Pct</th>
-    </tr>
-  </table>
-</div>
-
-<div id="surveyor-pie-chart" style="display:none">
-
-</div>
-
-
-
-<div id="route-count" class="content">
-  <table id="rte-count" class="table table-bordered">
-    <tr>
-        <th class="text-center">Route</th>
-        <th class="text-center">Count</th>
-        <th class="text-center">Pct</th>
-    </tr>
-  </table>
-
-</div>
-
-<div id="route-pie-chart" style="display:none">
-
-</div>
-
-
-<div id="wk-bar-chart" style="display:none">
-
-</div>
-
 <script>
     var questions = {{questions|tojson|safe}};
     var base = '{{url_for('index')}}';
