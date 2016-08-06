@@ -89,6 +89,7 @@ function reset(){
     $("#daypass").hide();
     $("#singlefare").hide();
     $("#purloc").hide();
+    $("#payment").hide();
 }
 
 

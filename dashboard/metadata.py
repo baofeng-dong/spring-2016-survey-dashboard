@@ -30,8 +30,11 @@ metadata = {
     8: {
         "headers": ["Purchase Location", "Count", "Pct"],
         "id": "purloc"
+        },
+    9: {
+        "headers": ["Payment", "Count", "Pct"],
+        "id": "payment"
         }
-
 
 }
 

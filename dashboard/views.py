@@ -207,6 +207,8 @@ def questionsdata():
         data = singlefare(qnum)
     if qnum == 8:
         data = purloc(qnum)
+    if qnum == 9:
+        data = payment(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -525,3 +527,55 @@ def purloc(qnum):
     
     #return jsonify(data = singlefareresults)
     return locationresults
+
+
+def payment(qnum):
+    paymentresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'All Purchases Payment Options'
+    results = db.session.execute("""with survey as (
+                                    select unnest(string_to_array(q10_purchase_types, ' ')) as payment 
+                                        from fare_survey_2016
+                                        where willing = '1' and 
+                                        q10_purchase_types is not null),
+
+                                    paymentall as (
+                                            select 
+                                                unnest(string_to_array(q10_purchase_types,' ')) as payment, 
+                                                count(*) as count,
+                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
+                                                from fare_survey_2016
+                                                where willing = '1' and 
+                                                q10_purchase_types is not null
+                                                group by payment
+                                                order by payment
+                                        ),
+
+                                    paymentpct as (
+                                    select
+                                        case
+                                            when payment = '1' then 'Cash'
+                                            when payment = '2' then 'Checking or saving account'
+                                            when payment = '3' then 'Bank issued debit or credit card'
+                                            when payment = '4' then 'Pre-paid debit or credit card'
+                                            when payment = '5' then 'Pre-paid gift card'
+                                            when payment = '6' then 'Money order or cashiers check'
+                                            when payment = '7' then 'Smartphone payment apps'
+                                        end as payment,
+                                        count,
+                                        pct
+                                        from paymentall
+                                        order by count desc)
+
+                                    select * from paymentpct""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        paymentresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return paymentresults
