@@ -90,6 +90,8 @@ function reset(){
     $("#singlefare").hide();
     $("#purloc").hide();
     $("#payment").hide();
+    $("#college").hide();
+    $("#collegeattend").hide();
 }
 
 

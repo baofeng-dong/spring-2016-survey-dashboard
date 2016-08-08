@@ -211,6 +211,8 @@ def questionsdata():
         data = payment(qnum)
     if qnum == 10:
         data = college(qnum)
+    if qnum == 11:
+        data = collegeattend(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -621,3 +623,60 @@ def college(qnum):
     
     #return jsonify(data = singlefareresults)
     return collegeresults
+
+
+def collegeattend(qnum):
+    attendresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Colleges Attended'
+    results = db.session.execute("""with survey as (
+                                    select unnest(string_to_array(q12_college_attend, ' ')) as college 
+                                        from fare_survey_2016
+                                        where willing = '1' and 
+                                        q12_college_attend is not null and
+                                        q11_college in ('2','3') ),
+
+                                    collegeall as (
+                                            select 
+                                                unnest(string_to_array(q12_college_attend,' ')) as college, 
+                                                count(*) as count,
+                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
+                                                from fare_survey_2016
+                                                where willing = '1' and 
+                                                q11_college in ('2','3')
+                                                group by college
+                                                order by college
+                                        ),
+
+                                    collegepct as (
+                                    select
+                                        case
+                                            when college = '1' then 'Clackamas Community College'
+                                            when college = '2' then 'Concordia University'
+                                            when college = '3' then 'Lewis & Clark College'
+                                            when college = '4' then 'Mount Hood Community College'
+                                            when college = '5' then 'Oregon Health and Science University'
+                                            when college = '6' then 'Pacific University'
+                                            when college = '7' then 'Portland Community College'
+                                            when college = '8' then 'Portland State University'
+                                            when college = '9' then 'Reed College'
+                                            when college = '10' then 'University of Portland'
+                                            when college = '11' then 'Other'
+                                        end as college,
+                                        count,
+                                        pct
+                                        from collegeall
+                                        order by count desc)
+
+                                    select * from collegepct""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        attendresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return attendresults
