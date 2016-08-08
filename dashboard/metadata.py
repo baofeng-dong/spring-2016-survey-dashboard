@@ -34,6 +34,10 @@ metadata = {
     9: {
         "headers": ["Payment", "Count", "Pct"],
         "id": "payment"
+        },
+    10: {
+        "headers": ["College", "Count", "Pct"],
+        "id": "college"
         }
 
 }

@@ -209,6 +209,8 @@ def questionsdata():
         data = purloc(qnum)
     if qnum == 9:
         data = payment(qnum)
+    if qnum == 10:
+        data = college(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -579,3 +581,43 @@ def payment(qnum):
     
     #return jsonify(data = singlefareresults)
     return paymentresults
+
+
+def college(qnum):
+    collegeresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Percentages of College Students'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q11_college is not null),
+                                            
+                                    survey_college as (
+                                    select
+                                        case 
+                                            when q11_college = '1' then 'No'
+                                            when q11_college = '2' then 'Yes part time'
+                                            when q11_college = '3' then 'Yes full time'
+                                        end as college,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    where q11_college is not null
+                                    group by q11_college)  
+
+                                    select * from survey_college""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        collegeresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return collegeresults
