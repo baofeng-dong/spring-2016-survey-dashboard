@@ -217,6 +217,8 @@ def questionsdata():
         data = smartphone(qnum)
     if qnum == 13:
         data = internet(qnum)
+    if qnum == 14:
+        data = age(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -765,3 +767,48 @@ def internet(qnum):
     
     #return jsonify(data = singlefareresults)
     return internetresults
+
+
+def age(qnum):
+    ageresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Age Distribution'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q15_age is not null),
+                                                
+                                    survey_age as (
+                                    select 
+                                        case 
+                                            when q15_age = '1' then 'Under 18'
+                                            when q15_age = '2' then '18-24'
+                                            when q15_age = '3' then '25-34'
+                                            when q15_age = '4' then '35-44'
+                                            when q15_age = '5' then '45-54'
+                                            when q15_age = '6' then '55-64'
+                                            when q15_age = '7' then '65 or more'
+                                        end as age,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    where q15_age is not null
+                                    group by age
+                                    order by age)
+
+                                    select * from survey_age""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        ageresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return ageresults

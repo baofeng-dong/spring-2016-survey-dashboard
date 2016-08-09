@@ -94,6 +94,7 @@ function reset(){
     $("#collegeattend").hide();
     $("#smartphone").hide();
     $("#internet").hide();
+    $("#age").hide();
 }
 
 
