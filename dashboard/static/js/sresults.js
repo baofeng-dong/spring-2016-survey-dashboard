@@ -93,6 +93,7 @@ function reset(){
     $("#college").hide();
     $("#collegeattend").hide();
     $("#smartphone").hide();
+    $("#internet").hide();
 }
 
 

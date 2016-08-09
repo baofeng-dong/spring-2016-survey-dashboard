@@ -215,6 +215,8 @@ def questionsdata():
         data = collegeattend(qnum)
     if qnum == 12:
         data = smartphone(qnum)
+    if qnum == 13:
+        data = internet(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -723,3 +725,43 @@ def smartphone(qnum):
     
     #return jsonify(data = singlefareresults)
     return smartphoneresults
+
+
+def internet(qnum):
+    internetresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Access to Internet'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q14_internet is not null),
+                                            
+                                    internet as (
+                                    select
+                                        case 
+                                            when q14_internet = '1' then 'Yes'
+                                            when q14_internet = '2' then 'No'
+                                            when q14_internet = '3' then 'Don not know'
+                                        end as smartphone,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    group by q14_internet
+                                    order by count desc)
+
+                                    select * from internet""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        internetresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return internetresults

@@ -46,6 +46,10 @@ metadata = {
     12: {
         "headers": ["Smartphone", "Count", "Pct"],
         "id": "smartphone"
+        },
+    13: {
+        "headers": ["Internet", "Count", "Pct"],
+        "id": "internet"
         }
 
 }
