@@ -95,6 +95,8 @@ function reset(){
     $("#smartphone").hide();
     $("#internet").hide();
     $("#age").hide();
+    $("#gender").hide();
+    $("#race").hide();
 }
 
 

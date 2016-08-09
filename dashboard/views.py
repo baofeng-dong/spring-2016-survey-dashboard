@@ -219,6 +219,10 @@ def questionsdata():
         data = internet(qnum)
     if qnum == 14:
         data = age(qnum)
+    if qnum == 15:
+        data = gender(qnum)
+    if qnum == 16:
+        data = race(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -812,3 +816,96 @@ def age(qnum):
     
     #return jsonify(data = singlefareresults)
     return ageresults
+
+
+def gender(qnum):
+    genderresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Gender Distribution'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q16_gender is not null),
+                                                
+                                    survey_gender as (
+                                    select 
+                                        case 
+                                            when q16_gender = '1' then 'Female'
+                                            when q16_gender = '2' then 'Male'
+                                            when q16_gender = '3' then 'Other'
+                                        end as gender,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    where q16_gender is not null
+                                    group by gender
+                                    order by gender)
+
+                                    select * from survey_gender""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        genderresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return genderresults
+
+
+def race(qnum):
+    raceresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Race Distribution'
+    results = db.session.execute("""with survey as (
+                                    select unnest(string_to_array(q17_race, ' ')) as race 
+                                        from fare_survey_2016
+                                        where willing = '1' and 
+                                        q17_race is not null),
+
+                                    raceall as (
+                                            select 
+                                                unnest(string_to_array(q17_race,' ')) as race, 
+                                                count(*) as count,
+                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
+                                                from fare_survey_2016
+                                                where willing = '1' and 
+                                                q17_race is not null
+                                                group by race
+                                                order by race
+                                        ),
+
+                                    racepct as (
+                                    select
+                                        case
+                                            when race = '1' then 'Asian/Pacific Islander'
+                                            when race = '2' then 'African American/Black'
+                                            when race = '3' then 'Caucasian/White'
+                                            when race = '4' then 'Hispanic/Latino'
+                                            when race = '5' then 'Native American Indian'
+                                            when race = '6' then 'Multi-racial/bi-racial'
+                                            when race = '7' then 'Other'
+                                        end as race,
+                                        count,
+                                        pct
+                                        from raceall
+                                        order by race)
+
+                                    select * from racepct""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        raceresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return raceresults

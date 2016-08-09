@@ -54,6 +54,14 @@ metadata = {
     14: {
         "headers": ["Age", "Count", "Pct"],
         "id": "age"
+        },
+    15: {
+        "headers": ["Gender", "Count", "Pct"],
+        "id": "gender"
+        },
+    16: {
+        "headers": ["Race", "Count", "Pct"],
+        "id": "race"
         }
 
 }
