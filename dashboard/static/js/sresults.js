@@ -97,6 +97,7 @@ function reset(){
     $("#age").hide();
     $("#gender").hide();
     $("#race").hide();
+    $("#disability").hide();
 }
 
 

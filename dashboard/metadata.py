@@ -62,6 +62,10 @@ metadata = {
     16: {
         "headers": ["Race", "Count", "Pct"],
         "id": "race"
+        },
+    17: {
+        "headers": ["Disability", "Count", "Pct"],
+        "id": "disability"
         }
 
 }

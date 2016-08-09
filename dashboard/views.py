@@ -223,6 +223,8 @@ def questionsdata():
         data = gender(qnum)
     if qnum == 16:
         data = race(qnum)
+    if qnum == 17:
+        data = disability(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -909,3 +911,42 @@ def race(qnum):
     
     #return jsonify(data = singlefareresults)
     return raceresults
+
+
+def disability(qnum):
+    disabilityresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Disability'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q18_disability is not null),
+                                                
+                                    survey_disability as (
+                                    select 
+                                        case 
+                                            when q18_disability = '1' then 'Yes'
+                                            when q18_disability = '2' then 'No'
+                                        end as disability,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    where q18_disability is not null
+                                    group by disability)
+
+                                    select * from survey_disability""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        disabilityresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return disabilityresults
