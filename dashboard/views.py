@@ -225,6 +225,8 @@ def questionsdata():
         data = race(qnum)
     if qnum == 17:
         data = disability(qnum)
+    if qnum == 18:
+        data = transit(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -950,3 +952,56 @@ def disability(qnum):
     
     #return jsonify(data = singlefareresults)
     return disabilityresults
+
+
+def transit(qnum):
+    transitresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Non-transit Options'
+    results = db.session.execute("""with survey as (
+                                    select unnest(string_to_array(q19_transit_options, ' ')) as transit
+                                        from fare_survey_2016
+                                        where willing = '1' and 
+                                        q19_transit_options is not null),
+
+                                    transitall as (
+                                            select 
+                                                unnest(string_to_array(q19_transit_options,' ')) as transit, 
+                                                count(*) as count,
+                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
+                                                from fare_survey_2016
+                                                where willing = '1' and 
+                                                q19_transit_options is not null
+                                                group by transit
+                                                order by transit
+                                        ),
+
+                                    transitpct as (
+                                    select
+                                        case
+                                            when transit = '1' then 'Drive my own car, truck, van or motorcycle'
+                                            when transit = '2' then 'Get rides from someone else'
+                                            when transit = '3' then 'Walk'
+                                            when transit = '4' then 'Bike'
+                                            when transit = '5' then 'Use carshare services like Zipcar or Car2Go'
+                                            when transit = '6' then 'Use ride hail services like taxi, Lyft or Uber '
+                                            when transit = '7' then 'I would not be able to go where I need to go'
+                                            when transit = '8' then 'Other'
+                                        end as transit,
+                                        count,
+                                        pct
+                                        from transitall
+                                        order by count desc)
+
+                                    select * from transitpct""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        transitresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return transitresults
