@@ -213,6 +213,8 @@ def questionsdata():
         data = college(qnum)
     if qnum == 11:
         data = collegeattend(qnum)
+    if qnum == 12:
+        data = smartphone(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -680,3 +682,44 @@ def collegeattend(qnum):
     
     #return jsonify(data = singlefareresults)
     return attendresults
+
+
+def smartphone(qnum):
+    smartphoneresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Smartphones'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q13_smartphone is not null),
+                                            
+                                    smart_phone as (
+                                    select
+                                        case 
+                                            when q13_smartphone = '1' then 'Yes'
+                                            when q13_smartphone = '2' then 'No'
+                                            when q13_smartphone = '3' then 'Do not know'
+                                        end as smartphone,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    where q13_smartphone is not null
+                                    group by q13_smartphone
+                                    order by count desc)  
+
+                                    select * from smart_phone""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        smartphoneresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return smartphoneresults

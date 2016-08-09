@@ -92,6 +92,7 @@ function reset(){
     $("#payment").hide();
     $("#college").hide();
     $("#collegeattend").hide();
+    $("#smartphone").hide();
 }
 
 
