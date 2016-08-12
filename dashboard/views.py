@@ -233,6 +233,8 @@ def questionsdata():
         data = transit(qnum)
     if qnum == 19:
         data = vehicle(qnum)
+    if qnum == 20:
+        data = house(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -1051,3 +1053,27 @@ def vehicle(qnum):
     
     #return jsonify(data = singlefareresults)
     return vehicleresults
+
+def house(qnum):
+    houseresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Household Size Count'
+    results = db.session.execute("""select q21_house_count::integer,
+                                    count(*) as count,
+                                    round(100*count(*)/(select count(*) from fare_survey_2016
+                                    where willing = '1' and q21_house_count is not null)::numeric,2) as pct
+                                    from fare_survey_2016
+                                    where willing = '1' and q21_house_count is not null
+                                    group by q21_house_count::integer
+                                    order by q21_house_count::integer""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        houseresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return houseresults

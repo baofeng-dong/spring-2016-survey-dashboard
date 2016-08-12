@@ -100,6 +100,7 @@ function reset(){
     $("#disability").hide();
     $("#transit").hide();
     $("#vehicle").hide();
+    $("#house").hide();
 }
 
 
