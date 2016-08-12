@@ -28,6 +28,10 @@ DIRPATH = os.path.dirname(os.path.realpath(__file__))
 def index():
     return render_template("index.html")
 
+@app.route('/introduction')
+def intro():
+    return render_template("introduction.html")
+
 @app.route('/sroutes')
 def sroutes():
     # return routes list dynamically

@@ -15,6 +15,15 @@ padding-bottom: 10px;
 display: none; 
 }
 
+#intro-main {
+  padding-left: 80px;
+  padding-top: 40px;
+}
+
+#intro {
+  padding-left: 20px;
+}
+
 #filter_line {
 overflow: scroll;
 height: 300px;
