@@ -101,6 +101,7 @@ function reset(){
     $("#transit").hide();
     $("#vehicle").hide();
     $("#house").hide();
+    $("#vecount").hide();
 }
 
 

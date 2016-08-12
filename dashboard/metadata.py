@@ -78,6 +78,10 @@ metadata = {
     20: {
         "headers": ["Household Size", "Count", "Pct"],
         "id": "house"
+        },
+    21: {
+        "headers": ["Vehicle Count", "Count", "Pct"],
+        "id": "vecount"
         }
 
 }

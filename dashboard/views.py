@@ -235,6 +235,8 @@ def questionsdata():
         data = vehicle(qnum)
     if qnum == 20:
         data = house(qnum)
+    if qnum == 21:
+        data = vecount(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -1077,3 +1079,28 @@ def house(qnum):
     
     #return jsonify(data = singlefareresults)
     return houseresults
+
+
+def vecount(qnum):
+    vecountresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Working Vehicles Count'
+    results = db.session.execute("""select q22_vehicle_count::integer,
+                                    count(*) as count,
+                                    round(100*count(*)/(select count(*) from fare_survey_2016
+                                    where willing = '1' and q22_vehicle_count is not null)::numeric,2) as pct
+                                    from fare_survey_2016
+                                    where willing = '1' and q22_vehicle_count is not null
+                                    group by q22_vehicle_count::integer
+                                    order by q22_vehicle_count::integer""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        vecountresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return vecountresults
