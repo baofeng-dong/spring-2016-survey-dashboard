@@ -99,6 +99,7 @@ function reset(){
     $("#race").hide();
     $("#disability").hide();
     $("#transit").hide();
+    $("#vehicle").hide();
 }
 
 

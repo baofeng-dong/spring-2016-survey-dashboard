@@ -70,6 +70,10 @@ metadata = {
     18: {
         "headers": ["Options", "Count", "Pct"],
         "id": "transit"
+        },
+    19: {
+        "headers": ["Availability", "Count", "Pct"],
+        "id": "vehicle"
         }
 
 }

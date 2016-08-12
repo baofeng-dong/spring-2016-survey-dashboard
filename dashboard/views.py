@@ -231,6 +231,8 @@ def questionsdata():
         data = disability(qnum)
     if qnum == 18:
         data = transit(qnum)
+    if qnum == 19:
+        data = vehicle(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -1009,3 +1011,43 @@ def transit(qnum):
     
     #return jsonify(data = singlefareresults)
     return transitresults
+
+
+def vehicle(qnum):
+    vehicleresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart.title = 'Vehicle Availability'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q20_vehicle_available is not null),
+                                                
+                                    survey_vehicle as (
+                                    select 
+                                        case 
+                                            when q20_vehicle_available = '1' then 'Yes'
+                                            when q20_vehicle_available = '2' then 'No'
+                                        end as vehicle,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    where q20_vehicle_available is not null
+                                    group by vehicle
+                                    order by count)
+
+                                    select * from survey_vehicle""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        vehicleresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return vehicleresults
