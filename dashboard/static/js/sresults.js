@@ -102,6 +102,7 @@ function reset(){
     $("#vehicle").hide();
     $("#house").hide();
     $("#vecount").hide();
+    $("#income").hide();
 }
 
 

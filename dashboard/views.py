@@ -237,6 +237,8 @@ def questionsdata():
         data = house(qnum)
     if qnum == 21:
         data = vecount(qnum)
+    if qnum == 22:
+        data = income(qnum)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -1104,3 +1106,52 @@ def vecount(qnum):
     
     #return jsonify(data = singlefareresults)
     return vecountresults
+
+
+def income(qnum):
+    incomeresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Income Distribution'
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016 
+                                            where
+                                                willing = '1' and
+                                                q23_income is not null and
+                                                q23_income != '12'),
+                                                
+                                    survey_income as (
+                                    select 
+                                        case 
+                                            when q23_income = '1' then 'Under $10,000'
+                                            when q23_income = '2' then '$10,000 - $19,000'
+                                            when q23_income = '3' then '$20,000 - $29,999'
+                                            when q23_income = '4' then '$30,000 - $39,999'
+                                            when q23_income = '5' then '$40,000 - $49,999'
+                                            when q23_income = '6' then '$50,000 - $59,999'
+                                            when q23_income = '7' then '$60,000 - $69,999'
+                                            when q23_income = '8' then '$70,000 - $79,999'
+                                            when q23_income = '9' then '$80,000 - $89,999'
+                                            when q23_income = '10' then '$90,000 - $99,999'
+                                            when q23_income = '11' then '$100,000 or more'
+                                        end as income,
+                                        count(*) as count,
+                                        round( count(*) * 100 / (
+                                            select count(*)
+                                            from survey)::numeric,2) as pct
+                                    from survey
+                                    group by q23_income
+                                    order by q23_income::integer)
+
+                                    select * from survey_income""")
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        incomeresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return incomeresults
