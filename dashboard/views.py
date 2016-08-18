@@ -36,16 +36,17 @@ def intro():
 def sroutes():
     # return routes list dynamically
     app.logger.debug(url_for('index'))
+
+    return render_template("sroutes.html", routes = getroutes())
+
+
+def getroutes():
     routes = db.session.execute(""" 
         select rte,rte_desc
         from rtedesc_lookup""")
 
-    routes = [(route[0],route[1]) for route in routes]
-    
-    srresults = []
-        
-    return render_template("sroutes.html", routes = routes)
-    
+    return [(route[0],route[1]) for route in routes]
+
 @app.route('/srdata')
 def srdata():
     srresults = []
@@ -183,7 +184,7 @@ def fareresults():
         questions.append([question[0],question[1]])
 
 
-    return render_template("fareresults.html",questions=questions)
+    return render_template("fareresults.html",questions=questions, routes=getroutes())
 
 @app.route('/questionsdata')
 def questionsdata():
@@ -238,7 +239,7 @@ def questionsdata():
     if qnum == 21:
         data = vecount(qnum)
     if qnum == 22:
-        data = income(qnum)
+        data = income(qnum, request.args)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -1108,18 +1109,20 @@ def vecount(qnum):
     return vecountresults
 
 
-def income(qnum):
+def income(qnum,args):
+    app.logger.debug(args)
     incomeresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Income Distribution'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean 
                                             where
                                                 willing = '1' and
                                                 q23_income is not null and
-                                                q23_income != '12'),
+                                                q23_income != '12' {0}),
                                                 
                                     survey_income as (
                                     select 
@@ -1144,7 +1147,7 @@ def income(qnum):
                                     group by q23_income
                                     order by q23_income::integer)
 
-                                    select * from survey_income""")
+                                    select * from survey_income""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
@@ -1155,3 +1158,25 @@ def income(qnum):
     
     #return jsonify(data = singlefareresults)
     return incomeresults
+
+
+def buildconditions(args):
+    where = ""
+    lookupwd = {
+    "Weekday": "(1,2,3,4,5)",
+    "Weekend": "(0,6)"
+    }
+
+    lookupvehicle = {
+    "MAX": "90,100,190,200,290"
+    }
+
+    for key, value in args.items():
+        app.logger.debug(key,value)
+        if key == "qnum" or not value: continue
+        if key == "rte" and value.isnumeric():
+            where += " AND rte='{0}'".format(value)
+        if key == "day" and value in lookupwd:
+            where += " AND extract(dow from _date) in {0}".format(lookupwd[value])
+    app.logger.debug(where)
+    return where

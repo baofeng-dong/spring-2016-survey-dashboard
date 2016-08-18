@@ -29,8 +29,8 @@ function toggle_tb(div_id_tb){
 
 function append_img(div_id){
     var div = $(div_id);
-    var qnum = questionkey[sel_line]
-    div.empty().prepend('<object data='+base+'static/image/' + 'q' + qnum + '.svg?1222259157.415" type="image/svg+xml" width="100%" />');
+    var qnum = questionkey[sel_ques]
+    div.empty().prepend('<object data='+ base + 'static/image/' + 'q' + qnum + '.svg?' + Math.random() + ' type="image/svg+xml" width="100%" />');
 }
 
 //build table using JSON data in jquery
@@ -51,8 +51,13 @@ function build_table(data,tb_id){
     }
 }
 
+var sel_ques = null;
 
-var sel_line = null;
+var sel_args = {
+    qnum : "",
+    rte : "",
+    day : ""
+    }
 
 var questionkey = buildkey(questions);
 
@@ -70,6 +75,24 @@ function buildkey(questions){
 
     return questionkey
 }
+
+
+var routeskey = buildkey(routes);
+
+for (var key in routeskey){
+    var val = routeskey[key];
+    console.log("Key: "+key+" Value:"+val);
+}
+
+//builds reference routeskey list
+function buildkey(routes){
+    var routeskey = {};
+    for (var i = 0; i < routes.length; i++){
+        routeskey[routes[i][1]] = routes[i][0];
+    }
+    return routeskey
+}
+
 
 function reset(){
     $("#surveyor-route").hide();
@@ -105,18 +128,58 @@ function reset(){
     $("#income").hide();
 }
 
-
-$('#filter_line a').on('click', function() {
+$('#filter_rte a').on('click', function() {
     reset();
-    sel_line = this.text
-    console.log(sel_line)
-    console.log(questionkey[sel_line])
-    var qnum = questionkey[sel_line];
-    var args = {"qnum":(questionkey[sel_line])};
-    console.log("qnum: " + qnum)
-    $("#line_btn").text(this.text+' ').append('<span class="caret"></span>');
+    var sel_rte = this.text
+    console.log(sel_rte)
+    if (sel_rte == 'All') {
+        sel_args.rte = null;
+    }
+    else {
+    var rte = routeskey[sel_rte];
+    //var args = {"rte":(routeskey[sel_rte])};
+    sel_args.rte = routeskey[sel_rte];
+    console.log("rte: " + rte)
+    }
 
-    $.getJSON('questionsdata', args, function(data) {
+    $("#rte_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+});
+
+
+$('#filter_ques a').on('click', function() {
+    reset();
+    sel_ques = this.text
+    console.log(sel_ques)
+    console.log(questionkey[sel_ques])
+    var qnum = questionkey[sel_ques];
+    //var args = {"qnum":(questionkey[sel_ques])};
+    sel_args.qnum = questionkey[sel_ques];
+    console.log("qnum: " + qnum)
+    $("#ques_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+
+});
+
+
+$('#filter_day a').on('click', function() {
+    reset();
+    var sel_day = this.text
+    console.log("day selected: " + sel_day)
+    if (sel_day == 'All') {
+        sel_args.day = null;
+    }
+    else {
+    sel_args.day = sel_day;
+    }
+    $("#day_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+
+});
+
+
+function requestdata() {
+    $.getJSON('questionsdata', sel_args, function(data) {
         console.log(data);
         div_id_ln = "#line-chart"
         div_id = "#" + data.metadata.id
@@ -133,5 +196,4 @@ $('#filter_line a').on('click', function() {
 
     });
 
-
-});
+}

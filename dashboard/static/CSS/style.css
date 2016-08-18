@@ -15,7 +15,7 @@ padding-bottom: 10px;
 display: none; 
 }
 
-#intro-main {
+#intro-main, #content-main {
   padding-left: 80px;
   padding-top: 40px;
 }
@@ -24,7 +24,7 @@ display: none;
   padding-left: 20px;
 }
 
-#filter_line {
+#filter_line, #filter_ques, #filter_rte, #filter_day {
 overflow: scroll;
 height: 300px;
 
@@ -55,6 +55,22 @@ height: 300px;
   font-size: x-large;
   padding-left: 100px;
   padding-top: 80px;
+
+}
+
+#menu {
+  margin-top: 50px;
+  text-align: left;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+#menu-select {
+  margin: 10px;
+  height:200px;
+}
+
+.dropdown {
 
 }
 
