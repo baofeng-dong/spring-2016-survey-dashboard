@@ -25,7 +25,90 @@
     </td>
   </tr>
 
-  <tr id="menu" >
+    <tr id="menu-dd">
+    <td style="padding-right:1em">
+      <strong>Select Vehicle Type:</strong>
+    </td>
+    <td>
+        <div class="dropdown">
+          <button id="vehicle_btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Vehicle Type
+          <span class="caret"></span></button>
+          <ul id="filter_vehicle" class="dropdown-menu scrollable-menu" role="menu">
+            <li role="presentation" class="divider"></li>
+              <li><a href="#">All</a></li>
+              <li><a href="#">MAX</a></li>
+              <li><a href="#">Bus</a></li>
+              <li><a href="#">WES</a></li>
+          </ul>
+        </div>
+    </td>
+    </tr>
+
+    <tr id="menu-dd">
+    <td style="padding-right:1em">
+      <strong>Select Route Type:</strong>
+    </td>
+    <td>
+        <div class="dropdown">
+          <button id="rtetype_btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Route Type
+          <span class="caret"></span></button>
+          <ul id="filter_rtetype" class="dropdown-menu scrollable-menu" role="menu">
+            <li role="presentation" class="divider"></li>
+              <li><a href="#">All</a></li>
+              <li><a href="#">MAX</a></li>
+              <li><a href="#">Bus Crosstown</a></li>
+              <li><a href="#">Bus Eastside Feeder</a></li>
+              <li><a href="#">Bus Westside Feeder</a></li>
+              <li><a href="#">Bus Radial</a></li>
+              <li><a href="#">WES</a></li>
+          </ul>
+        </div>
+    </td>
+    </tr>
+
+    <tr id="menu-dd">
+    <td style="padding-right:1em">
+      <strong>Select Day of Week:</strong>
+    </td>
+    <td>
+        <div class="dropdown">
+          <button id="day_btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Day of Week
+          <span class="caret"></span></button>
+          <ul id="filter_day" class="dropdown-menu scrollable-menu" role="menu">
+            <li role="presentation" class="divider"></li>
+              <li><a href="#">All</a></li>
+              <li><a href="#">Weekday</a></li>
+              <li><a href="#">Weekend</a></li>
+          </ul>
+        </div>
+    </td>
+    </tr>
+
+    <tr id="menu-dd">
+    <td style="padding-right:1em">
+      <strong>Select Time of Day:</strong>
+    </td>
+    <td>
+        <div class="dropdown">
+          <button id="tod_btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Time of Day
+          <span class="caret"></span></button>
+          <ul id="filter_tod" class="dropdown-menu scrollable-menu" role="menu">
+            <li role="presentation" class="divider"></li>
+              <li><a href="#">All</a></li>
+              <li><a href="#">Weekday Early AM</a></li>
+              <li><a href="#">Weekday AM Peak</a></li>
+              <li><a href="#">Weekday Midday</a></li>
+              <li><a href="#">Weekday PM Peak</a></li>
+              <li><a href="#">Weekday Night</a></li>
+              <li><a href="#">Weekend Morning</a></li>
+              <li><a href="#">Weekend Midday</a></li>
+              <li><a href="#">Weekend Night</a></li>
+          </ul>
+        </div>
+    </td>
+    </tr>
+
+  <tr id="menu-dd" >
     <td style="padding-right:1em">
       <strong>Select Route:</strong>
     </td>
@@ -42,24 +125,10 @@
           </ul>
         </div>
     </td>
-  </tr>
-    <tr id="menu">
-    <td style="padding-right:1em">
-      <strong>Select Day of Week:</strong>
-    </td>
-    <td>
-        <div class="dropdown">
-          <button id="day_btn" class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Day of Week
-          <span class="caret"></span></button>
-          <ul id="filter_day" class="dropdown-menu scrollable-menu" role="menu">
-            <li role="presentation" class="divider"></li>
-              <li><a href="#">All</a></li>
-              <li><a href="#">Weekday</a></li>
-              <li><a href="#">Weekend</a></li>
-          </ul>
-        </div>
-    </td>
-  </tr>
+    </tr>
+
+
+
 </table>
 
 </div>

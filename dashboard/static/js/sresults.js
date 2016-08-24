@@ -55,8 +55,11 @@ var sel_ques = null;
 
 var sel_args = {
     qnum : "",
-    rte : "",
-    day : ""
+    vehicle: "",
+    rtetype: "",
+    day : "",
+    tod : "",
+    rte : ""
     }
 
 var questionkey = buildkey(questions);
@@ -177,6 +180,52 @@ $('#filter_day a').on('click', function() {
 
 });
 
+
+$('#filter_vehicle a').on('click', function() {
+    reset();
+    var sel_vehicle = this.text
+    console.log("vehicle selected: " + sel_vehicle)
+    if (sel_vehicle == 'All') {
+        sel_args.vehicle = null;
+    }
+    else {
+    sel_args.vehicle = sel_vehicle;
+    }
+    $("#vehicle_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+
+});
+
+$('#filter_rtetype a').on('click', function() {
+    reset();
+    var sel_rtetype = this.text
+    console.log("route type selected: " + sel_rtetype)
+    if (sel_rtetype == 'All') {
+        sel_args.rtetype = null;
+    }
+    else {
+    sel_args.rtetype = sel_rtetype;
+    }
+    $("#rtetype_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+
+});
+
+
+$('#filter_tod a').on('click', function() {
+    reset();
+    var sel_tod = this.text
+    console.log("time of day selected: " + sel_tod)
+    if (sel_tod == 'All') {
+        sel_args.tod = null;
+    }
+    else {
+    sel_args.tod = sel_tod;
+    }
+    $("#tod_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+
+});
 
 function requestdata() {
     $.getJSON('questionsdata', sel_args, function(data) {

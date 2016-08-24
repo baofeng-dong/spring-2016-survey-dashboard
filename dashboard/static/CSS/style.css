@@ -24,10 +24,15 @@ display: none;
   padding-left: 20px;
 }
 
-#filter_line, #filter_ques, #filter_rte, #filter_day {
+#filter_line, #filter_ques, #filter_rte {
 overflow: scroll;
 height: 300px;
 
+}
+
+#filter_day {
+  overflow: scroll;;
+  height: 120px;
 }
 
 #surveyor-pct {
@@ -58,7 +63,7 @@ height: 300px;
 
 }
 
-#menu {
+#menu-dd {
   margin-top: 50px;
   text-align: left;
   padding-top: 60px;
@@ -67,7 +72,7 @@ height: 300px;
 
 #menu-select {
   margin: 10px;
-  height:200px;
+  height:350px;
 }
 
 .dropdown {

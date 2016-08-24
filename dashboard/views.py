@@ -225,19 +225,19 @@ def questionsdata():
     if qnum == 14:
         data = age(qnum)
     if qnum == 15:
-        data = gender(qnum)
+        data = gender(qnum, request.args)
     if qnum == 16:
-        data = race(qnum)
+        data = race(qnum, request.args)
     if qnum == 17:
-        data = disability(qnum)
+        data = disability(qnum, request.args)
     if qnum == 18:
-        data = transit(qnum)
+        data = transit(qnum, request.args)
     if qnum == 19:
-        data = vehicle(qnum)
+        data = vehicle(qnum, request.args)
     if qnum == 20:
-        data = house(qnum)
+        data = house(qnum, request.args)
     if qnum == 21:
-        data = vecount(qnum)
+        data = vecount(qnum, request.args)
     if qnum == 22:
         data = income(qnum, request.args)
 
@@ -835,17 +835,19 @@ def age(qnum):
     return ageresults
 
 
-def gender(qnum):
+def gender(qnum, args):
+    app.logger.debug(args)
     genderresults = []
     #qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Pie(inner_radius=.3, print_values=True)
     bar_chart.title = 'Gender Distribution'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean
                                             where
                                                 willing = '1' and
-                                                q16_gender is not null),
+                                                q16_gender is not null {0}),
                                                 
                                     survey_gender as (
                                     select 
@@ -854,20 +856,20 @@ def gender(qnum):
                                             when q16_gender = '2' then 'Male'
                                             when q16_gender = '3' then 'Other'
                                         end as gender,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
                                     where q16_gender is not null
                                     group by gender
                                     order by gender)
 
-                                    select * from survey_gender""")
+                                    select * from survey_gender""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        genderresults.append([row[0],int(row[1]),float(row[2])])
+        genderresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -876,50 +878,42 @@ def gender(qnum):
     return genderresults
 
 
-def race(qnum):
+def race(qnum, args):
+    app.logger.debug(args)
     raceresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Race Distribution'
+    where = buildconditions(args)
     results = db.session.execute("""with survey as (
-                                    select unnest(string_to_array(q17_race, ' ')) as race 
-                                        from fare_survey_2016
+                                    select *
+                                        from fare_survey_2016_clean
                                         where willing = '1' and 
-                                        q17_race is not null),
-
-                                    raceall as (
-                                            select 
-                                                unnest(string_to_array(q17_race,' ')) as race, 
-                                                count(*) as count,
-                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
-                                                from fare_survey_2016
-                                                where willing = '1' and 
-                                                q17_race is not null
-                                                group by race
-                                                order by race
-                                        ),
+                                        q17_race is not null {0}),
 
                                     racepct as (
-                                    select
+                                        select 
                                         case
-                                            when race = '1' then 'Asian/Pacific Islander'
-                                            when race = '2' then 'African American/Black'
-                                            when race = '3' then 'Caucasian/White'
-                                            when race = '4' then 'Hispanic/Latino'
-                                            when race = '5' then 'Native American Indian'
-                                            when race = '6' then 'Multi-racial/bi-racial'
-                                            when race = '7' then 'Other'
+                                            when q17_race = '1' then 'Asian/Pacific Islander'
+                                            when q17_race = '2' then 'African American/Black'
+                                            when q17_race = '3' then 'Caucasian/White'
+                                            when q17_race = '4' then 'Hispanic/Latino'
+                                            when q17_race = '5' then 'Native American Indian'
+                                            when q17_race = '6' then 'Multi-racial/bi-racial'
+                                            when q17_race = '7' then 'Other'
                                         end as race,
-                                        count,
-                                        pct
-                                        from raceall
-                                        order by race)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
+                                        from survey
+                                        group by race
+                                        order by race
+                                        )
 
-                                    select * from racepct""")
+                                    select * from racepct""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        raceresults.append([row[0],int(row[1]),float(row[2])])
+        raceresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -928,17 +922,19 @@ def race(qnum):
     return raceresults
 
 
-def disability(qnum):
+def disability(qnum, args):
+    app.logger.debug(args)
     disabilityresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Disability'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean
                                             where
                                                 willing = '1' and
-                                                q18_disability is not null),
+                                                q18_disability is not null {0}),
                                                 
                                     survey_disability as (
                                     select 
@@ -946,19 +942,19 @@ def disability(qnum):
                                             when q18_disability = '1' then 'Yes'
                                             when q18_disability = '2' then 'No'
                                         end as disability,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
                                     where q18_disability is not null
                                     group by disability)
 
-                                    select * from survey_disability""")
-                
+                                    select * from survey_disability""".format(where))
+
     for row in results:
         print(row[0],row[1],row[2])
-        disabilityresults.append([row[0],int(row[1]),float(row[2])])
+        disabilityresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -967,25 +963,25 @@ def disability(qnum):
     return disabilityresults
 
 
-def transit(qnum):
+def transit(qnum,args):
+    app.logger.debug(args)
     transitresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Non-transit Options'
+    where = buildconditions(args)
     results = db.session.execute("""with survey as (
-                                    select unnest(string_to_array(q19_transit_options, ' ')) as transit
-                                        from fare_survey_2016
+                                    select *
+                                        from fare_survey_2016_clean
                                         where willing = '1' and 
-                                        q19_transit_options is not null),
+                                        q19_transit_options is not null {0}),
 
                                     transitall as (
                                             select 
                                                 unnest(string_to_array(q19_transit_options,' ')) as transit, 
-                                                count(*) as count,
-                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
-                                                from fare_survey_2016
-                                                where willing = '1' and 
-                                                q19_transit_options is not null
+                                                round(sum(weight_final)::numeric,1) as count,
+                                                round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
+                                                from survey
                                                 group by transit
                                                 order by transit
                                         ),
@@ -1005,9 +1001,9 @@ def transit(qnum):
                                         count,
                                         pct
                                         from transitall
-                                        order by count desc)
+                                        order by transit)
 
-                                    select * from transitpct""")
+                                    select * from transitpct""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
@@ -1020,17 +1016,20 @@ def transit(qnum):
     return transitresults
 
 
-def vehicle(qnum):
+def vehicle(qnum,args):
+    app.logger.debug(args)
     vehicleresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Vehicle Availability'
+    where = buildconditions(args)
+    app.logger.debug(where)
     results = db.session.execute("""WITH survey as (
                                     select *
                                             from fare_survey_2016 
                                             where
                                                 willing = '1' and
-                                                q20_vehicle_available is not null),
+                                                q20_vehicle_available is not null {0}),
                                                 
                                     survey_vehicle as (
                                     select 
@@ -1047,7 +1046,7 @@ def vehicle(qnum):
                                     group by vehicle
                                     order by count)
 
-                                    select * from survey_vehicle""")
+                                    select * from survey_vehicle""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
@@ -1059,23 +1058,32 @@ def vehicle(qnum):
     #return jsonify(data = singlefareresults)
     return vehicleresults
 
-def house(qnum):
+def house(qnum,args):
+    app.logger.debug(args)
     houseresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Household Size Count'
-    results = db.session.execute("""select q21_house_count::integer,
-                                    count(*) as count,
-                                    round(100*count(*)/(select count(*) from fare_survey_2016
-                                    where willing = '1' and q21_house_count is not null)::numeric,2) as pct
-                                    from fare_survey_2016
-                                    where willing = '1' and q21_house_count is not null
-                                    group by q21_house_count::integer
-                                    order by q21_house_count::integer""")
+    where = buildconditions(args)
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                q21_house_count is not null {0}),
+                                    housecount as (
+                                            select q21_house_count::integer,
+                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
+                                            from survey
+                                            group by q21_house_count::integer
+                                            order by q21_house_count::integer)
+
+                                    select * from housecount""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        houseresults.append([str(row[0]),int(row[1]),float(row[2])])
+        houseresults.append([str(row[0]),float(row[1]),float(row[2])])
         bar_chart.add(str(row[0]),float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1084,23 +1092,32 @@ def house(qnum):
     return houseresults
 
 
-def vecount(qnum):
+def vecount(qnum, args):
     vecountresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Working Vehicles Count'
-    results = db.session.execute("""select q22_vehicle_count::integer,
-                                    count(*) as count,
-                                    round(100*count(*)/(select count(*) from fare_survey_2016
-                                    where willing = '1' and q22_vehicle_count is not null)::numeric,2) as pct
-                                    from fare_survey_2016
-                                    where willing = '1' and q22_vehicle_count is not null
+    where = buildconditions(args)
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                q22_vehicle_count is not null {0}),
+
+                                    vehiclecount as (
+                                    select q22_vehicle_count::integer,
+                                    round(sum(weight_final)::numeric,1) as count,
+                                    round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
+                                    from survey
                                     group by q22_vehicle_count::integer
-                                    order by q22_vehicle_count::integer""")
+                                    order by q22_vehicle_count::integer)
+
+                                    select * from vehiclecount""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        vecountresults.append([str(row[0]),int(row[1]),float(row[2])])
+        vecountresults.append([str(row[0]),float(row[1]),float(row[2])])
         bar_chart.add(str(row[0]),float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1110,7 +1127,7 @@ def vecount(qnum):
 
 
 def income(qnum,args):
-    app.logger.debug(args)
+    # app.logger.debug(args.key)
     incomeresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
@@ -1122,7 +1139,7 @@ def income(qnum,args):
                                             where
                                                 willing = '1' and
                                                 q23_income is not null and
-                                                q23_income != '12' {0}),
+                                                q23_income != '12' {}),
                                                 
                                     survey_income as (
                                     select 
@@ -1139,9 +1156,9 @@ def income(qnum,args):
                                             when q23_income = '10' then '$90,000 - $99,999'
                                             when q23_income = '11' then '$100,000 or more'
                                         end as income,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
                                     group by q23_income
@@ -1151,7 +1168,7 @@ def income(qnum,args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        incomeresults.append([row[0],int(row[1]),float(row[2])])
+        incomeresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1168,15 +1185,50 @@ def buildconditions(args):
     }
 
     lookupvehicle = {
-    "MAX": "90,100,190,200,290"
+    "MAX": "IN ('90','100','190','200','290')",
+    "WES": "IN ('203')",
+    "Bus": "NOT IN ('90','100','190','200','290','203')"
+    }
+
+    lookuprtetype = {
+    "MAX": "1",
+    "Bus Crosstown": "2",
+    "Bus Eastside Feeder": "3",
+    "Bus Westside Feeder": "4",
+    "Bus Radial": "5",
+    "WES": "6"
+    }
+
+    lookuptod = {
+    "Weekday Early AM": "1",
+    "Weekday AM Peak": "2",
+    "Weekday Midday": "3",
+    "Weekday PM Peak": "4",
+    "Weekday Night": "5",
+    "Weekend Morning": "6",
+    "Weekend Midday": "7",
+    "Weekend Night": "8"
     }
 
     for key, value in args.items():
-        app.logger.debug(key,value)
+        # app.logger.debug(key,value)
         if key == "qnum" or not value: continue
-        if key == "rte" and value.isnumeric():
-            where += " AND rte='{0}'".format(value)
+
+        if key == "vehicle" and value in lookupvehicle:
+            where += " AND rte {0}".format(lookupvehicle[value])
+
+        if key == "rtetype" and value in lookuprtetype:
+            where += " AND rte_type='{0}'".format(lookuprtetype[value])
+
         if key == "day" and value in lookupwd:
             where += " AND extract(dow from _date) in {0}".format(lookupwd[value])
-    app.logger.debug(where)
+
+        if key == "tod" and value in lookuptod:
+            where += " AND time_of_day='{0}'".format(lookuptod[value])
+
+        if key == "rte" and value.isnumeric():
+            where += " AND rte='{0}'".format(value)
+
+
+    # app.logger.debug(where)
     return where
