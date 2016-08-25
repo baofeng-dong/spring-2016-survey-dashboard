@@ -223,7 +223,7 @@ def questionsdata():
     if qnum == 13:
         data = internet(qnum)
     if qnum == 14:
-        data = age(qnum)
+        data = age(qnum, request.args)
     if qnum == 15:
         data = gender(qnum, request.args)
     if qnum == 16:
@@ -790,17 +790,18 @@ def internet(qnum):
     return internetresults
 
 
-def age(qnum):
+def age(qnum, args):
     ageresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Age Distribution'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean
                                             where
                                                 willing = '1' and
-                                                q15_age is not null),
+                                                q15_age is not null {0}),
                                                 
                                     survey_age as (
                                     select 
@@ -813,16 +814,15 @@ def age(qnum):
                                             when q15_age = '6' then '55-64'
                                             when q15_age = '7' then '65 or more'
                                         end as age,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        sum(weight_final) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
-                                    where q15_age is not null
                                     group by age
                                     order by age)
 
-                                    select * from survey_age""")
+                                    select * from survey_age""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
@@ -836,7 +836,7 @@ def age(qnum):
 
 
 def gender(qnum, args):
-    app.logger.debug(args)
+    # app.logger.debug(args)
     genderresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, print_values=True)
@@ -879,7 +879,7 @@ def gender(qnum, args):
 
 
 def race(qnum, args):
-    app.logger.debug(args)
+    # app.logger.debug(args)
     raceresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
@@ -923,7 +923,7 @@ def race(qnum, args):
 
 
 def disability(qnum, args):
-    app.logger.debug(args)
+    # app.logger.debug(args)
     disabilityresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
@@ -964,7 +964,7 @@ def disability(qnum, args):
 
 
 def transit(qnum,args):
-    app.logger.debug(args)
+    # app.logger.debug(args)
     transitresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
@@ -1017,7 +1017,7 @@ def transit(qnum,args):
 
 
 def vehicle(qnum,args):
-    app.logger.debug(args)
+    # app.logger.debug(args)
     vehicleresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
@@ -1059,7 +1059,7 @@ def vehicle(qnum,args):
     return vehicleresults
 
 def house(qnum,args):
-    app.logger.debug(args)
+    # app.logger.debug(args)
     houseresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
@@ -1127,7 +1127,7 @@ def vecount(qnum, args):
 
 
 def income(qnum,args):
-    # app.logger.debug(args.key)
+    # app.logger.debug(args)
     incomeresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
