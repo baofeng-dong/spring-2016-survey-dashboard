@@ -221,7 +221,7 @@ def questionsdata():
     if qnum == 12:
         data = smartphone(qnum)
     if qnum == 13:
-        data = internet(qnum)
+        data = internet(qnum, request.args)
     if qnum == 14:
         data = age(qnum, request.args)
     if qnum == 15:
@@ -750,17 +750,18 @@ def smartphone(qnum):
     return smartphoneresults
 
 
-def internet(qnum):
+def internet(qnum, args):
     internetresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Access to Internet'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean
                                             where
                                                 willing = '1' and
-                                                q14_internet is not null),
+                                                q14_internet is not null {0}),
                                             
                                     internet as (
                                     select
@@ -769,19 +770,19 @@ def internet(qnum):
                                             when q14_internet = '2' then 'No'
                                             when q14_internet = '3' then 'Don not know'
                                         end as smartphone,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
                                     group by q14_internet
                                     order by count desc)
 
-                                    select * from internet""")
+                                    select * from internet""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        internetresults.append([row[0],int(row[1]),float(row[2])])
+        internetresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
