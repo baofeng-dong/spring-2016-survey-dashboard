@@ -217,7 +217,7 @@ def questionsdata():
     if qnum == 10:
         data = college(qnum)
     if qnum == 11:
-        data = collegeattend(qnum)
+        data = collegeattend(qnum, request.args)
     if qnum == 12:
         data = smartphone(qnum, request.args)
     if qnum == 13:
@@ -652,26 +652,25 @@ def college(qnum):
     return collegeresults
 
 
-def collegeattend(qnum):
+def collegeattend(qnum, args):
     attendresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Colleges Attended'
+    where = buildconditions(args)
     results = db.session.execute("""with survey as (
-                                    select unnest(string_to_array(q12_college_attend, ' ')) as college 
-                                        from fare_survey_2016
+                                    select *
+                                        from fare_survey_2016_clean
                                         where willing = '1' and 
                                         q12_college_attend is not null and
-                                        q11_college in ('2','3') ),
+                                        q11_college in ('2','3') {0}),
 
                                     collegeall as (
                                             select 
                                                 unnest(string_to_array(q12_college_attend,' ')) as college, 
-                                                count(*) as count,
-                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
-                                                from fare_survey_2016
-                                                where willing = '1' and 
-                                                q11_college in ('2','3')
+                                                round(sum(weight_final)::numeric,1) as count,
+                                                round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
+                                                from survey
                                                 group by college
                                                 order by college
                                         ),
@@ -696,11 +695,11 @@ def collegeattend(qnum):
                                         from collegeall
                                         order by count desc)
 
-                                    select * from collegepct""")
+                                    select * from collegepct""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        attendresults.append([row[0],int(row[1]),float(row[2])])
+        attendresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
