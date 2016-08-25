@@ -219,7 +219,7 @@ def questionsdata():
     if qnum == 11:
         data = collegeattend(qnum)
     if qnum == 12:
-        data = smartphone(qnum)
+        data = smartphone(qnum, request.args)
     if qnum == 13:
         data = internet(qnum, request.args)
     if qnum == 14:
@@ -709,17 +709,18 @@ def collegeattend(qnum):
     return attendresults
 
 
-def smartphone(qnum):
+def smartphone(qnum, args):
     smartphoneresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Smartphones'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean
                                             where
                                                 willing = '1' and
-                                                q13_smartphone is not null),
+                                                q13_smartphone is not null {0}),
                                             
                                     smart_phone as (
                                     select
@@ -728,20 +729,19 @@ def smartphone(qnum):
                                             when q13_smartphone = '2' then 'No'
                                             when q13_smartphone = '3' then 'Do not know'
                                         end as smartphone,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
-                                    where q13_smartphone is not null
                                     group by q13_smartphone
-                                    order by count desc)  
+                                    order by count desc)
 
-                                    select * from smart_phone""")
+                                    select * from smart_phone""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        smartphoneresults.append([row[0],int(row[1]),float(row[2])])
+        smartphoneresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
