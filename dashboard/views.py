@@ -215,7 +215,7 @@ def questionsdata():
     if qnum == 9:
         data = payment(qnum)
     if qnum == 10:
-        data = college(qnum)
+        data = college(qnum, request.args)
     if qnum == 11:
         data = collegeattend(qnum, request.args)
     if qnum == 12:
@@ -612,17 +612,18 @@ def payment(qnum):
     return paymentresults
 
 
-def college(qnum):
+def college(qnum, args):
     collegeresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
     bar_chart.title = 'Percentages of College Students'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean
                                             where
                                                 willing = '1' and
-                                                q11_college is not null),
+                                                q11_college is not null {0}),
                                             
                                     survey_college as (
                                     select
@@ -631,15 +632,15 @@ def college(qnum):
                                             when q11_college = '2' then 'Yes part time'
                                             when q11_college = '3' then 'Yes full time'
                                         end as college,
-                                        count(*) as count,
-                                        round( count(*) * 100 / (
-                                            select count(*)
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
                                             from survey)::numeric,2) as pct
                                     from survey
-                                    where q11_college is not null
-                                    group by q11_college)  
+                                    group by q11_college
+                                    order by pct)
 
-                                    select * from survey_college""")
+                                    select * from survey_college""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
