@@ -213,7 +213,7 @@ def questionsdata():
     if qnum == 8:
         data = purloc(qnum)
     if qnum == 9:
-        data = payment(qnum)
+        data = payment(qnum, request.args)
     if qnum == 10:
         data = college(qnum, request.args)
     if qnum == 11:
@@ -560,50 +560,44 @@ def purloc(qnum):
     return locationresults
 
 
-def payment(qnum):
+def payment(qnum, args):
     paymentresults = []
     #qnum = request.args.get('qnum')
-    bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    # bar_chart = pygal.Pie(inner_radius=.3, disable_xml_declaration=True,print_values=True)
+    bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'All Purchases Payment Options'
+    where = buildconditions(args)
     results = db.session.execute("""with survey as (
-                                    select unnest(string_to_array(q10_purchase_types, ' ')) as payment 
-                                        from fare_survey_2016
+                                    select * 
+                                        from fare_survey_2016_clean
                                         where willing = '1' and 
-                                        q10_purchase_types is not null),
-
-                                    paymentall as (
-                                            select 
-                                                unnest(string_to_array(q10_purchase_types,' ')) as payment, 
-                                                count(*) as count,
-                                                round(count(*)*100/(select count(*) from survey)::numeric,2) as pct
-                                                from fare_survey_2016
-                                                where willing = '1' and 
-                                                q10_purchase_types is not null
-                                                group by payment
-                                                order by payment
-                                        ),
+                                        q10_purchase_types is not null {0}),
 
                                     paymentpct as (
-                                    select
+                                        select
                                         case
-                                            when payment = '1' then 'Cash'
-                                            when payment = '2' then 'Checking or saving account'
-                                            when payment = '3' then 'Bank issued debit or credit card'
-                                            when payment = '4' then 'Pre-paid debit or credit card'
-                                            when payment = '5' then 'Pre-paid gift card'
-                                            when payment = '6' then 'Money order or cashiers check'
-                                            when payment = '7' then 'Smartphone payment apps'
+                                            when q10_purchase_types = '2' then 'Checking or savings account ONLY'
+                                            when q10_purchase_types = '3' then 'Bank issued debit/credit card ONLY'
+                                            when q10_purchase_types = '4' then 'Pre-paid debit or credit card ONLY'
+                                            when q10_purchase_types = '5' then 'Pre-paid gift card ONLY'
+                                            when q10_purchase_types = '6' then 'Money order or cashiers check ONLY'
+                                            when q10_purchase_types = '7' then 'Smartphone payment apps ONLY'
+                                            when q10_purchase_types = '8' then 'Cash ONLY'
+                                            when q10_purchase_types = '9' then 'Cash + Ohter Ways'
+                                            when q10_purchase_types = '10' then 'Not cash but other combinations'
                                         end as payment,
-                                        count,
-                                        pct
-                                        from paymentall
-                                        order by count desc)
+                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
+                                            from survey
+                                            group by payment
+                                            order by payment
+                                    )
 
-                                    select * from paymentpct""")
+                                    select * from paymentpct""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        paymentresults.append([row[0],int(row[1]),float(row[2])])
+        paymentresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -644,7 +638,7 @@ def college(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        collegeresults.append([row[0],int(row[1]),float(row[2])])
+        collegeresults.append([row[0],float(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
