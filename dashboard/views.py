@@ -197,7 +197,7 @@ def questionsdata():
         data = tripdata(qnum)
 
     if qnum == 3:
-        data = agencydata(qnum)
+        data = agencydata(qnum, request.args)
 
     if qnum == 4:
         data = faretype(qnum, request.args)
@@ -321,18 +321,19 @@ def tripdata(qnum):
     return tripresults
 
 #@app.route('/agencydata')
-def agencydata(qnum):
+def agencydata(qnum, args):
     agencyresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Faretypes by Agency'
+    where = buildconditions(args)
     results = db.session.execute("""
             WITH survey as (
             select *
-                    from fare_survey_2016 
+                    from fare_survey_2016_clean
                     where
                         willing = '1' and
-                        q4_fare_agency is not null),
+                        q4_fare_agency is not null {0}),
                     
             fare_agency as (
             select
@@ -341,20 +342,19 @@ def agencydata(qnum):
                     when q4_fare_agency = '2' then 'C-TRAN fare'
                     when q4_fare_agency = '3' then 'Streetcar fare'
                 end as Fareagency,
-                count(*) as count,
-                round( count(*) * 100 / (
-                    select count(*)
+                round(sum(weight_final)::numeric,1) as count,
+                round( sum(weight_final) * 100 / (
+                    select sum(weight_final)
                     from survey)::numeric,2) as pct
             from survey
-            where q4_fare_agency is not null
             group by q4_fare_agency
             order by q4_fare_agency::integer)
 
-            select * from fare_agency""")
+            select * from fare_agency""".format(where))
     for row in results:
         print(row[0],row[1],row[2])
-        agencyresults.append([str(row[0]),int(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),int(row[1]))
+        agencyresults.append([str(row[0]),float(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),float(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
 
