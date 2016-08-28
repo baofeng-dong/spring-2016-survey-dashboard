@@ -206,7 +206,7 @@ def questionsdata():
         data = purchasetype(qnum)
 
     if qnum == 6:
-        data = daypass(qnum)
+        data = daypass(qnum, request.args)
 
     if qnum == 7:
         data = singlefare(qnum, request.args)
@@ -460,24 +460,34 @@ def purchasetype(qnum):
     return purchaseresults
 
 #@app.route('/daypass')
-def daypass(qnum):
+def daypass(qnum, args):
     daypassresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of One-way Trips on a Day Pass'
-    results = db.session.execute("""select q7_day_fare::integer,
-            count(*) as count,
-            round(100*count(*)/(select count(*) from fare_survey_2016
-            where willing = '1' and q7_day_fare is not null)::numeric,2) as pct
-            from fare_survey_2016
-            where willing = '1' and q7_day_fare is not null
-            group by q7_day_fare::integer
-            order by q7_day_fare::integer""")
+    where = buildconditions(args)
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                q7_day_fare is not null {0}),
+
+                                    dayfare as (
+                                        select
+                                            q7_day_fare::integer,
+                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
+                                        from survey
+                                        group by q7_day_fare::integer
+                                        order by q7_day_fare::integer)
+
+                                    select * from dayfare""".format(where))
             
     for row in results:
         print(row[0],row[1],row[2])
-        daypassresults.append([str(row[0]),int(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),int(row[1]))
+        daypassresults.append([str(row[0]),float(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),float(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
