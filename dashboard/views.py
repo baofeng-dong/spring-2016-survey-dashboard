@@ -203,7 +203,7 @@ def questionsdata():
         data = faretype(qnum)
 
     if qnum == 5:
-        data = purchasetype(qnum)
+        data = purchasetype(qnum, request.args)
 
     if qnum == 6:
         data = daypass(qnum, request.args)
@@ -412,19 +412,20 @@ def faretype(qnum):
     return fareresults
     
 #@app.route('/purchasetype')
-def purchasetype(qnum):
+def purchasetype(qnum, args):
     purchaseresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Fares by Purchase Types'
+    where = buildconditions(args)
     results = db.session.execute("""
             WITH survey as (
             select *
-                    from fare_survey_2016 
+                    from fare_survey_2016_clean
                     where
                         willing = '1' and 
                         q6_purchase_type is not null and
-                        q6_purchase_type != ''),
+                        q6_purchase_type != '' {0}),
                     
             purchase_type as (
             select
@@ -438,21 +439,20 @@ def purchasetype(qnum):
                     when q6_purchase_type = '7' then 'Monthly Pass'
                     when q6_purchase_type = '8' then 'Annual Pass'
                 end as purchasetype,
-                count(*) as count,
-                round( count(*) * 100 / (
-                    select count(*)
+                round(sum(weight_final)::numeric,1) as count,
+                round( sum(weight_final) * 100 / (
+                    select sum(weight_final)
                     from survey)::numeric,2) as pct
             from survey
-            where q6_purchase_type is not null
             group by q6_purchase_type
-            order by count)
+            order by count desc)
 
-            select * from purchase_type""")
+            select * from purchase_type""".format(where))
             
     for row in results:
         print(row[0],row[1],row[2])
-        purchaseresults.append([row[0],int(row[1]),float(row[2])])
-        bar_chart.add(row[0],int(row[1]))
+        purchaseresults.append([row[0],float(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
