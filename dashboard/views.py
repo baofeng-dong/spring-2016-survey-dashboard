@@ -194,7 +194,7 @@ def questionsdata():
         data = transferdata(qnum)
 
     if qnum == 2:
-        data = tripdata(qnum)
+        data = tripdata(qnum, request.args)
 
     if qnum == 3:
         data = agencydata(qnum, request.args)
@@ -296,24 +296,39 @@ def transferdata(qnum):
 
 
 #@app.route('/tripdata')
-def tripdata(qnum):
+def tripdata(qnum, args):
     tripresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Number of Trips by Range in a Week'
+    where = buildconditions(args)
     results = db.session.execute("""
-            select 10 * s.d as trange, count(f.q3_trip_count) as count,
-            round(count(f.q3_trip_count)*100/(select count (*) as sum from fare_survey_2016 where willing = '1' and 
-            q3_trip_count is not null)::numeric,2) as pct
-            from generate_series(0, 7) s(d)
-            left outer join fare_survey_2016 f on s.d = floor(f.q3_trip_count / 10)
-            where f.willing = '1' and f.q3_trip_count is not null
-            group by s.d
-            order by s.d""")
+                                WITH survey as (
+                                select *
+                                        from fare_survey_2016_clean 
+                                        where
+                                            willing = '1' and
+                                            q3_trip_group is not null {0}),
+
+                                tripgroup as (
+                                    select
+                                        case
+                                            when q3_trip_group = '1' then 'Infrequent rider'
+                                            when q3_trip_group = '2' then 'Occasional rider (up to 6 trips/month)'
+                                            when q3_trip_group = '3' then 'Regular rider (7-17 trips/month)'
+                                            when q3_trip_group = '4' then 'Frequent rider (18 trips/month or more)'
+                                        end as triprider,
+                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
+                                    from survey
+                                    group by q3_trip_group::integer
+                                    order by q3_trip_group::integer)
+
+                                select * from tripgroup""".format(where))
     for row in results:
         print(row[0],row[1],row[2])
-        tripresults.append([str(row[0]),int(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),int(row[1]))
+        tripresults.append([str(row[0]),float(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),float(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
 
