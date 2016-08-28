@@ -191,7 +191,7 @@ def questionsdata():
     qnum = int(request.args.get('qnum'))
     data = None
     if qnum == 1:
-        data = transferdata(qnum)
+        data = transferdata(qnum, request.args)
 
     if qnum == 2:
         data = tripdata(qnum, request.args)
@@ -246,23 +246,21 @@ def questionsdata():
 
 
 #@app.route('/transferdata')
-def transferdata(qnum):
+def transferdata(qnum, args):
     transferresults = []
     labels = []
     
     bar_chart = pygal.Bar(print_values=True)
     
     bar_chart.title = 'Number of Transfers in One Trip'
+    where = buildconditions(args)
     results = db.session.execute("""
             WITH survey as (
             select *
-                    from fare_survey_2016 
+                    from fare_survey_2016_clean
                     where
                         willing = '1' and
-                        q23_income is not null and
-                        language in ('1','2') and 
-                        rte is not null
-                    and rte != ''),
+                        q1_transfer is not null {0}),
                     
             survey_tran as (
             select 
@@ -272,20 +270,20 @@ def transferdata(qnum):
                     when q1_transfer = '3' then 'Transfer 2 times'
                     when q1_transfer = '4' then 'Transfer 3 or more'
                 end as Transfer,
-                count(*) as count,
-                round( count(*) * 100 / (
-                    select count(*)
+                round(sum(weight_final)::numeric,1) as count,
+                round( sum(weight_final) * 100 / (
+                    select sum(weight_final)
                     from survey)::numeric,2) as pct
             from survey
             group by q1_transfer
             order by q1_transfer::integer)
 
-            select * from survey_tran""")
+            select * from survey_tran""".format(where))
     for row in results:
         print(row[0],row[1],row[2])
-        transferresults.append([row[0],int(row[1]),float(row[2])])
+        transferresults.append([row[0],float(row[1]),float(row[2])])
         labels.append(row[0])
-        bar_chart.add(row[0],[{'value':int(row[1])}])
+        bar_chart.add(row[0],[{'value':float(row[1])}])
     #bar_chart.x_labels = labels
     for label in labels:
         print(label)
