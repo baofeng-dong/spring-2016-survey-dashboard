@@ -211,7 +211,7 @@ def questionsdata():
     if qnum == 7:
         data = singlefare(qnum)
     if qnum == 8:
-        data = purloc(qnum)
+        data = purloc(qnum, request.args)
     if qnum == 9:
         data = payment(qnum, request.args)
     if qnum == 10:
@@ -513,17 +513,18 @@ def singlefare(qnum):
     return singlefareresults
 
 
-def purloc(qnum):
+def purloc(qnum, args):
     locationresults = []
     #qnum = request.args.get('qnum')
     bar_chart = pygal.HorizontalBar(print_values=True)
     bar_chart.title = 'Fare Purchase Location'
+    where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                         select *
-                                from fare_survey_2016 
+                                from fare_survey_2016_clean
                                 where
                                     willing = '1' and
-                                    q9_purchase_loc is not null),
+                                    q9_purchase_loc is not null {0}),
                                 
                         purchase_location as (
                         select
@@ -539,20 +540,20 @@ def purloc(qnum):
                                 when q9_purchase_loc = '9' then 'Social Service Agency'
                                 when q9_purchase_loc = '10' then 'Other'
                             end as Purchaseloc,
-                            count(*) as count,
-                            round( count(*) * 100 / (
-                                select count(*)
+                            round(sum(weight_final)::numeric,1) as count,
+                            round( sum(weight_final) * 100 / (
+                                select sum(weight_final)
                                 from survey)::numeric,2) as pct
                         from survey
                         group by q9_purchase_loc
                         order by count desc)
 
-                        select * from purchase_location""")
+                        select * from purchase_location""".format(where))
                 
     for row in results:
         print(row[0],row[1],row[2])
-        locationresults.append([row[0],int(row[1]),float(row[2])])
-        bar_chart.add(row[0],int(row[1]))
+        locationresults.append([row[0],float(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
