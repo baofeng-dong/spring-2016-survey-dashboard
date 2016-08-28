@@ -209,7 +209,7 @@ def questionsdata():
         data = daypass(qnum)
 
     if qnum == 7:
-        data = singlefare(qnum)
+        data = singlefare(qnum, request.args)
     if qnum == 8:
         data = purloc(qnum, request.args)
     if qnum == 9:
@@ -485,27 +485,37 @@ def daypass(qnum):
     return daypassresults
 
 #@app.route('/singlefaretrip')
-def singlefare(qnum):
+def singlefare(qnum, args):
     singlefareresults = []
     #qnum = request.args.get('qnum')
-    bar_chart = pygal.Bar(print_values=True)
+    bar_chart = pygal.Pie(inner_radius=.3, print_values=True)
     bar_chart.title = 'Number of One-way/Round Trips on a Single Fare'
-    results = db.session.execute("""select case
-                                        when q8_single_fare= '1' then 'One-way trip'
-                                        when q8_single_fare='2' then 'Round-trip'
-                                        end as q8_single_fare,
-                                        count(*) as count,
-                                        round(100*count(*)/(select count(*) from fare_survey_2016
-                                        where willing = '1' and q8_single_fare is not null)::numeric,2) as pct
-                                        from fare_survey_2016
-                                        where willing = '1' and q8_single_fare is not null
+    where = buildconditions(args)
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                q8_single_fare in ('1','2') {0}),
+
+                                    singlefare as (
+                                        select
+                                            case
+                                                when q8_single_fare= '1' then 'One-way trip'
+                                                when q8_single_fare='2' then 'Round-trip'
+                                            end as faretrip,
+                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
+                                        from survey
                                         group by q8_single_fare
-                                        order by q8_single_fare""")
-                
+                                        order by q8_single_fare)
+
+                                    select * from singlefare""".format(where))
+
     for row in results:
         print(row[0],row[1],row[2])
-        singlefareresults.append([row[0],int(row[1]),float(row[2])])
-        bar_chart.add(row[0],int(row[1]))
+        singlefareresults.append([row[0],float(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
