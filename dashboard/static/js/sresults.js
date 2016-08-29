@@ -59,6 +59,7 @@ var sel_args = {
     rtetype: "",
     day : "",
     tod : "",
+    fpl : "",
     rte : ""
     }
 
@@ -224,6 +225,22 @@ $('#filter_tod a').on('click', function() {
     sel_args.tod = sel_tod;
     }
     $("#tod_btn").text(this.text+' ').append('<span class="caret"></span>');
+    requestdata();
+
+});
+
+
+$('#filter_fpl a').on('click', function() {
+    reset();
+    var sel_fpl = this.text
+    console.log("fpl selected: " + sel_fpl)
+    if (sel_fpl == 'All') {
+        sel_args.fpl = null;
+    }
+    else {
+    sel_args.fpl = sel_fpl;
+    }
+    $("#fpl_btn").text(this.text+' ').append('<span class="caret"></span>');
     requestdata();
 
 });

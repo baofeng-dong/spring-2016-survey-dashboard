@@ -1278,6 +1278,11 @@ def buildconditions(args):
     "Weekend Night": "8"
     }
 
+    lookupfpl = {
+    "Above 150% FPL": "0",
+    "Below 150% FPL": "1"
+    }
+
     for key, value in args.items():
         # app.logger.debug(key,value)
         if key == "qnum" or not value: continue
@@ -1293,6 +1298,9 @@ def buildconditions(args):
 
         if key == "tod" and value in lookuptod:
             where += " AND time_of_day='{0}'".format(lookuptod[value])
+
+        if key == "fpl" and value in lookupfpl:
+            where += " AND fpl_150='{0}'".format(lookupfpl[value])
 
         if key == "rte" and value.isnumeric():
             where += " AND rte='{0}'".format(value)
