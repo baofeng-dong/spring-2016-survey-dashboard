@@ -129,6 +129,7 @@ function reset(){
     $("#house").hide();
     $("#vecount").hide();
     $("#income").hide();
+    $("#poverty").hide();
 }
 
 $('#filter_rte a').on('click', function() {

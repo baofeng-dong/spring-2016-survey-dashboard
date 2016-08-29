@@ -240,6 +240,8 @@ def questionsdata():
         data = vecount(qnum, request.args)
     if qnum == 22:
         data = income(qnum, request.args)
+    if qnum == 23:
+        data = poverty(qnum, request.args)
 
     return jsonify(data=data, metadata=metadata[qnum])
 
@@ -1204,6 +1206,44 @@ def income(qnum,args):
     #return jsonify(data = singlefareresults)
     return incomeresults
 
+
+def poverty(qnum,args):
+    # app.logger.debug(args)
+    povertyresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Pie(inner_radius = .3, print_values=True)
+    bar_chart.title = '150% Federal Poverty Level'
+    where = buildconditions(args)
+    results = db.session.execute("""WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                fpl_150 is not null {0}),
+
+                                    fplcount as (
+                                        select
+                                            case
+                                                when fpl_150 = '0' then 'Above 150% poverty level'
+                                                when fpl_150 = '1' then 'At or below 150% poverty level'
+                                            end as povertylevel,
+                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
+                                        from survey
+                                        group by fpl_150
+                                        order by fpl_150::integer)
+
+                                    select * from fplcount""".format(where))
+                
+    for row in results:
+        print(row[0],row[1],row[2])
+        povertyresults.append([row[0],float(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return povertyresults
 
 def buildconditions(args):
     where = ""

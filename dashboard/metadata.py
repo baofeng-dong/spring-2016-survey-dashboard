@@ -86,6 +86,10 @@ metadata = {
     22: {
         "headers": ["Income", "Count", "Pct"],
         "id": "income"
+        },
+    23: {
+        "headers": ["FPL", "Count", "Pct"],
+        "id": "poverty"
         }
 
 }
