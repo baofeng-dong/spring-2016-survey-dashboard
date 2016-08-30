@@ -3,17 +3,14 @@
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 
-from flask import render_template,request,jsonify,url_for
+from flask import render_template,request,jsonify,url_for,Blueprint,redirect
 from sqlalchemy.orm import sessionmaker,scoped_session 
 from dashboard import app,db
 from dashboard.models import Sroutes,Scount,Surveyors,Surveywkd, Survey
 from sqlalchemy import Table, Column, Float, Integer, String, MetaData, ForeignKey, cast, Numeric
 from sqlalchemy.sql import func
 import pygal
-from pygal.style import DarkSolarizedStyle
-from pygal.style import LightStyle
-from pygal.style import CleanStyle
-from pygal.style import DarkStyle
+from pygal.style import DarkSolarizedStyle, LightStyle, CleanStyle, DarkStyle
 import codecs
 import json
 import base64
@@ -21,6 +18,7 @@ import os,sys
 import time
 from datetime import datetime
 from .metadata import metadata
+from dashboard.auth import Auth
 
 DIRPATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -31,6 +29,10 @@ def index():
 @app.route('/introduction')
 def intro():
     return render_template("introduction.html")
+
+@app.route('/map')
+def map():
+    return render_template("map.html")
 
 @app.route('/sroutes')
 def sroutes():
@@ -171,6 +173,7 @@ def willing():
 
 
 @app.route('/fareresults')
+@Auth.requires_auth
 def fareresults():
     # return dropdown list dynamically
     #build a question list key value dropdown

@@ -75,8 +75,9 @@ height: 300px;
   height:350px;
 }
 
-.dropdown {
-
-}
+#mapid {
+  width: 100%;
+  height: 800px;
+  }
 
 
