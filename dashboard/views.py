@@ -32,7 +32,16 @@ def intro():
 
 @app.route('/map')
 def map():
-    return render_template("map.html")
+    d = os.path.join(DIRPATH, "static/geojson")
+    rtejsonlist = [f for f in os.listdir(d)]
+    #return jsonify(data=rtejsonlist)
+    return render_template("map.html", rtejsonlist=rtejsonlist)
+
+@app.route('/rtejsondata')
+def getrtejson():
+    d = os.path.join(DIRPATH, "static/geojson")
+    rtejsonlist = [os.path.join(d, f) for f in os.listdir(d)]
+    return jsonify(data=rtejsonlist)
 
 @app.route('/sroutes')
 def sroutes():

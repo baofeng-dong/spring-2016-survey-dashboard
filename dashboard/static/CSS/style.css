@@ -71,7 +71,8 @@ height: 300px;
 }
 
 #menu-select {
-  margin: 10px;
+  margin-top: 30px;
+  margin-left: 50px;
   height:350px;
 }
 
@@ -80,4 +81,12 @@ height: 300px;
   height: 800px;
   }
 
+p {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 16px;
+}
 
+#fareresults-intro {
+  margin-top:10px;
+  margin-left: 50px;
+}
