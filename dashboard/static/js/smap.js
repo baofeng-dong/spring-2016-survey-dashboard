@@ -52,7 +52,7 @@ var controlLayers = L.control.layers().addTo(mymap);
 
 function getJson(jsonname) {
 
-    var pathjson = "../../static/geojson/"
+    var pathjson = base + 'static/geojson/'
 
     // Loading a GeoJSON file (using jQuery's $.getJSON)    
     $.getJSON(pathjson + jsonname, function (data) {
@@ -66,7 +66,7 @@ function getJson(jsonname) {
     });
 }
 
-getJson("4_0_routes.geojson");
+//getJson("4_0_routes.geojson");
 
 for (var i=0; i<rtejsonlist.length; i++) {
     console.log("rtejsonlist: " +rtejsonlist[i])
