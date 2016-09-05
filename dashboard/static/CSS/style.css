@@ -90,3 +90,9 @@ p {
   margin-top:10px;
   margin-left: 50px;
 }
+
+.leaflet-control-layers {
+  max-height: 600px;
+  width: auto;
+  overflow: auto;
+}

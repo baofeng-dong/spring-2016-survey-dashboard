@@ -48,7 +48,7 @@ function onMapClick(e) {
 mymap.on('click', onMapClick);
 
     // Create the layercontrol and add it to the map
-var controlLayers = L.control.layers().addTo(mymap);
+var controlLayers = L.control.layers().addTo(mymap, true);
 
 function getJson(jsonname) {
 
