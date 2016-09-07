@@ -79,7 +79,7 @@ function getJson(jsonname) {
 }
 
 function getColor(rtetype) {
-    return rtetype == "BUS" ? '#1f5d98' :
+    return rtetype == "BUS" ? '#1c4ca5' :
            rtetype == "MAX" ? '#d1441e' :
            rtetype == "CR"  ? '#d95f0e' :
                               '#FFEDA0';
