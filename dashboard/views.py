@@ -1261,7 +1261,9 @@ def buildconditions(args):
     where = ""
     lookupwd = {
     "Weekday": "(1,2,3,4,5)",
-    "Weekend": "(0,6)"
+    "Weekend": "(0,6)",
+    "Saturday": "(6)",
+    "Sunday": "(0)"
     }
 
     lookupvehicle = {
