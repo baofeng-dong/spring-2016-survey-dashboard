@@ -1212,13 +1212,35 @@ def vecount(qnum, args):
     #return jsonify(data = singlefareresults)
     return vecountresults
 
+"""def compareincome(args):
+    app.logger.debug(args)
+    args = dict(args)
+    args["day"] = "Weekday"
+    app.logger.debug(args)
+    app.logger.debug(type(args))
+    weekdayresults = incomequery(args)
 
-def income(qnum,args):
-    # app.logger.debug(args)
+    args["day"] = "Weekend"
+    weekendresults = incomequery(args)
+
     incomeresults = []
-    #qnum = request.args.get('qnum')
+    qnum = int(args["qnum"][0])
+    app.logger.debug(qnum)
     bar_chart = pygal.Bar(print_values=True)
     bar_chart.title = 'Income Distribution'
+    results = incomequery(args)
+                
+    for row in weekdayresults:
+        print(row[0],row[1],row[2])
+        incomeresults.append([row[0],float(row[1]),float(row[2])])
+        bar_chart.add(row[0],float(row[2]))
+    
+    bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
+    
+    #return jsonify(data = singlefareresults)
+    return incomeresults"""
+
+def incomequery(args):
     where = buildconditions(args)
     results = db.session.execute("""WITH survey as (
                                     select *
@@ -1252,6 +1274,17 @@ def income(qnum,args):
                                     order by q23_income::integer)
 
                                     select * from survey_income""".format(where))
+    return results
+
+def income(qnum,args):
+    #if args["day"] == "Compare":
+        #return compareincome(args)
+
+    incomeresults = []
+    #qnum = request.args.get('qnum')
+    bar_chart = pygal.Bar(print_values=True)
+    bar_chart.title = 'Income Distribution'
+    results = incomequery(args)
                 
     for row in results:
         print(row[0],row[1],row[2])
