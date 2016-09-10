@@ -5,15 +5,25 @@
 
 <div id="map-select">
 
-<label>Select a Map View By</label>
-<div class="map-view"></div>
+<label>Select a Map View</label>
+<div class="map-view">
 
-<input type="radio" name="viewList" value="race">Completed Surveys
-<input type="radio" name="viewList" value="income">Income
-<input type="radio" name="viewList" value="poverty">Federal Poverty Level
-<input type="radio" name="viewList" value="race">Race
-<input type="radio" name="viewList" value="race">Frequent Rider
+<table class="fixed" width="800px">
+  <col width="200px" />
+  <col width="140px" />
+  <col width="200px" />
+  <col width="120px" />
+  <col width="140px" />
+  <tr>
+    <td><input class = "mapview" type="radio" name="viewList" value="completedsurvey">Completed Surveys</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="income">Income</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="poverty">Federal Poverty Level</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="race">Race</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="frequentrider">Frequent Rider</td>
+  </tr>
+</table>
 
+</div>
 </div>
 
 <div id="mapid">
@@ -21,7 +31,7 @@
 </div>
 
 <div style="padding:30px">
-<!--<p>{{rtejsonlist}}</p>-->
+<!--<p>{{rtejsonlist}}</p-->
 
 </div>
 

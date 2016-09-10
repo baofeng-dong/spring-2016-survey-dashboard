@@ -32,16 +32,61 @@ def intro():
 
 @app.route('/map')
 def map():
+
+    return render_template("map.html", rtejsonlist=getrtejson())
+
+def getrtejson():
     d = os.path.join(DIRPATH, "static/geojson")
-    rtejsonlist = [f for f in os.listdir(d)]
-    #return jsonify(data=rtejsonlist)
-    return render_template("map.html", rtejsonlist=rtejsonlist)
+    return [f for f in os.listdir(d)]
 
 @app.route('/rtejsondata')
-def getrtejson():
+def getjson():
     d = os.path.join(DIRPATH, "static/geojson")
     rtejsonlist = [os.path.join(d, f) for f in os.listdir(d)]
     return jsonify(data=rtejsonlist)
+
+@app.route('/mapviewdata')
+def mapviewdata():
+    sel_view = request.args.get('sel_view')
+    data = None
+    if sel_view == 'income':
+        data = mapincome()
+
+    if sel_view == 'race':
+        data = maprace(sel_view)
+
+    return jsonify(data=data)
+
+def mapincome():
+    lowincomeresults = {}
+
+    results = db.session.execute("""
+                                    WITH survey as (
+                                        select *
+                                                from fare_survey_2016_clean 
+                                                where
+                                                    willing = '1' and
+                                                    q23_income is not null and
+                                                    q23_income != '12'),
+                                                    
+                                        low_income as (
+                                        select 
+
+                                            rte,
+                                            round( sum(weight_final) * 100 / (
+                                                select sum(weight_final)
+                                                from survey where s.rte=rte)::numeric,2) as pct
+                                        from survey as s
+                                        where q23_income in ('1','2','3')
+                                        group by rte
+                                        order by rte::integer)
+
+                                        select * from low_income""")
+
+    for row in results:
+        print(row[0],row[1])
+        lowincomeresults[row[0]] = float(row[1])
+    return lowincomeresults
 
 @app.route('/sroutes')
 def sroutes():
