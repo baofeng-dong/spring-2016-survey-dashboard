@@ -39,6 +39,12 @@ function onEachFeature(feature, layer) {
                         + "<b>Direction:</b> " + feature.properties.dir_desc;
 
     layer.bindPopup(popupContent);
+
+    /*layer.on({
+        mouseover: highlightFeature,
+        //mouseout: resetHighlight
+        
+    });*/
 }
 
 function getJson(jsonname) {
@@ -50,6 +56,7 @@ function getJson(jsonname) {
 
         // Use the data to create a GeoJSON layer and add it to the map
         rtegeoJson[data.features[0].properties.rte] = data;
+
         var geoLayer = L.geoJson(data, {
                 style: function (feature) {
                     return {
@@ -63,7 +70,7 @@ function getJson(jsonname) {
         }).addTo(mymap);
 
     // Add the geojson layer to the layercontrol
-    controlLayers.addOverlay(geoLayer, jsonname.slice(0,-9));
+    controlLayers.addOverlay(geoLayer, data.features[0].properties.rte + " " + "-" + " " + data.features[0].properties.rte_desc);
     });
 }
 
@@ -76,14 +83,11 @@ function getBaseColor(rtetype) {
 
 
 function getColor(pct) {
- return pct > 80 ? '#800026' :
-        pct > 60  ? '#BD0026' :
-        pct > 50  ? '#E31A1C' :
-        pct > 40  ? '#FC4E2A' :
-        pct > 30   ? '#FD8D3C' :
-        pct > 20   ? '#FEB24C' :
-        pct > 10   ? '#FED976' :
-                      '#FFEDA0';
+ return pct > 80 ? '#990000' :
+        pct > 60  ? '#992600' :
+        pct > 40  ? '#997300' :
+        pct > 20   ? '#739900' :
+                      '#269900';
 }
 
 
@@ -123,7 +127,7 @@ function addGeoJson(data) {
 
             }).addTo(mymap);
             // Add the geojson layer to the layercontrol
-            controlLayers.addOverlay(geoLayer, rte + " " + routegeoJson.features[0].properties.rte_desc);
+            controlLayers.addOverlay(geoLayer, rte + " " + "-" + " " + routegeoJson.features[0].properties.rte_desc);
         }
      }
      
@@ -136,7 +140,7 @@ function highlightFeature(e) {
 
     layer.setStyle({
         weight: 3,
-        color: '#666',
+        color: '##009933',
 
     });
 
@@ -144,6 +148,14 @@ function highlightFeature(e) {
         layer.bringToFront();
     }
 }
+
+/*var geojson;
+// ... our listeners
+geojson = L.geoJson();
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+}*/
 
 function addLabel() {
     if(hasLegend) {
@@ -155,7 +167,7 @@ function addLabel() {
     legend.onAdd = function (map) {
 
     var div = L.DomUtil.create('div', 'info legend'),
-        grades = [0, 10, 20, 30, 40, 50, 60, 80],
+        grades = [0, 20, 40, 60, 80],
         labels = [];
 
     // loop through our density intervals and generate a label with a colored square for each interval
