@@ -17,7 +17,7 @@ $(document).ready(function() {
 
     // Create the layercontrol and add it to the map
     controlLayers = L.control.layers().addTo(mymap, true);
-
+    // add the list of routes geojson to the map by calling the getJson function
     for (var i=0; i<rtejsonlist.length; i++) {
         //console.log("rtejsonlist: " +rtejsonlist[i])
         getJson(rtejsonlist[i]);
@@ -53,8 +53,9 @@ function getJson(jsonname) {
 
     // Loading a GeoJSON file (using jQuery's $.getJSON)
     $.getJSON(pathjson + jsonname, function (data) {
+        console.log(data);
 
-        // Use the data to create a GeoJSON layer and add it to the map
+        // create a dict called retegeoJson with rte as key and the route geojson as value
         rtegeoJson[data.features[0].properties.rte] = data;
 
         var geoLayer = L.geoJson(data, {
@@ -84,10 +85,10 @@ function getBaseColor(rtetype) {
 
 function getColor(pct) {
  return pct > 80 ? '#990000' :
-        pct > 60  ? '#992600' :
-        pct > 40  ? '#997300' :
-        pct > 20   ? '#739900' :
-                      '#269900';
+        pct > 60 ? '#992600' :
+        pct > 40 ? '#997300' :
+        pct > 20 ? '#739900' :
+                   '#269900';
 }
 
 
@@ -104,17 +105,19 @@ function requestmapdata() {
 }
 
 function addGeoJson(data) {
+    console.log(data);
     mymap.eachLayer(function (layer) {
     if (layer instanceof L.TileLayer == false) {
         mymap.removeLayer(layer);
         controlLayers.removeLayer(layer);
-    console.log(layer instanceof L.TileLayer);
+        console.log(layer instanceof L.TileLayer);
     }
     });
 
     for (var rte in rtegeoJson) {
         if (rtegeoJson.hasOwnProperty(rte)) {
             var routegeoJson = rtegeoJson[rte]
+            // add the list of geojson routes and style the color based on the income pct value (data)
             var geoLayer = L.geoJson(routegeoJson, {
                 style: function (feature) {
                     return {
