@@ -55,6 +55,9 @@ def mapviewdata():
     if sel_view == 'fpl':
         data = mapfpl(request.args)
 
+    if sel_view == 'minority':
+        data = mapminority(request.args)
+
     return jsonify(data=data)
 
 def mapincome(args):
@@ -118,6 +121,37 @@ def mapfpl(args):
         print(row[0],row[1])
         fplresults[row[0]] = float(row[1])
     return fplresults
+
+
+def mapminority(args):
+    minorityresults = {}
+    where = buildconditions(args)
+    results = db.session.execute("""
+                                    WITH survey as (
+                                            select *
+                                                    from fare_survey_2016_clean 
+                                                    where
+                                                        willing = '1' and
+                                                        q17_race is not null {0}),
+                                                        
+                                            monority as (
+                                            select 
+
+                                                rte,
+                                                round( sum(weight_final) * 100 / (
+                                                    select sum(weight_final)
+                                                    from survey where s.rte=rte)::numeric,2) as pct
+                                            from survey as s
+                                            where q17_race != '3'
+                                            group by rte
+                                            order by rte::integer)
+
+                                            select * from monority""".format(where))
+
+    for row in results:
+        print(row[0],row[1])
+        minorityresults[row[0]] = float(row[1])
+    return minorityresults
 
 @app.route('/sroutes')
 def sroutes():
