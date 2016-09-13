@@ -4,6 +4,11 @@ var mymap = null;
 var controlLayers = null;
 var rtegeoJson = {};
 var sel_view = null;
+var sel_args = {
+    view : "",
+    day : ""
+    }
+
 var hasLegend = false;
 
 $(document).ready(function() {
@@ -28,18 +33,46 @@ $(document).ready(function() {
     $('.mapview').click(function() {
         console.log($(this).attr("value"))
         sel_view = $(this).attr("value");
-        console.log("sel_view: " + sel_view)
+        console.log("sel_view: " + sel_view);
+        sel_args.view = sel_view;
 
         requestmapdata();
         });
+    $('.checkweek').click(function() {
+        if ($(this).prop("checked")) {
+            var sel_day = $(this).val();
+            console.log("sel_day: " + sel_day);
+            sel_args.day = sel_day;
+        }
+
+        if (sel_day == 'All') {
+            sel_args.day = null;
+        }
+        else {
+        sel_args.day = sel_day;
+        }
+
+        requestmapdata();
+
+    });
+    $('input[type="checkbox"]').on('change', function() {
+        $('input[type="checkbox"]').not(this).prop('checked', false);
+    });
 })
 
 function onEachFeature(feature, layer) {
     var popupContent = "<b>Route:</b> " + feature.properties.rte + '-' + feature.properties.rte_desc + '<br />'
                         + "<b>Direction:</b> " + feature.properties.dir_desc;
+    // specify popup options 
+    var customOptions =
+        {
+        'maxWidth': '300',
+        'className' : 'custom'
+        }
 
-    layer.bindPopup(popupContent);
-    layer.on('mouseover', function(e) {
+    layer.bindPopup(popupContent, customOptions);
+
+    /*layer.on('mouseover', function(e) {
         this.openPopup();
     });
     layer.on('mouseout', function(e) {
@@ -48,7 +81,7 @@ function onEachFeature(feature, layer) {
 
     /*layer.on({
         mouseover: highlightFeature,
-        //mouseout: resetHighlight
+        mouseout: resetHighlight
         
     });*/
 }
@@ -59,7 +92,7 @@ function getJson(jsonname) {
 
     // Loading a GeoJSON file (using jQuery's $.getJSON)
     $.getJSON(pathjson + jsonname, function (data) {
-        console.log(data);
+        //console.log(data);
 
         // create a dict called retegeoJson with rte as key and the route geojson as value
         rtegeoJson[data.features[0].properties.rte] = data;
@@ -67,8 +100,9 @@ function getJson(jsonname) {
         var geoLayer = L.geoJson(data, {
                 style: function (feature) {
                     return {
-                        color: getBaseColor(feature.properties.type),
-                        weight: 3
+                        color: getBaseColor(feature.properties.rte),
+                        weight: 2.5,
+                        opacity: 0.80
                         };
                 },
                 
@@ -81,11 +115,14 @@ function getJson(jsonname) {
     });
 }
 
-function getBaseColor(rtetype) {
-    return rtetype == "BUS" ? '#1c4ca5' :
-           rtetype == "MAX" ? '#d1441e' :
-           rtetype == "CR"  ? '#d95f0e' :
-                              '#FFEDA0';
+function getBaseColor(rte) {
+    return rte == 90  ? '#d02c0f' :
+           rte == 100 ? '#0069AA' :
+           rte == 190 ? '#FFC425' :
+           rte == 200 ? '#008752' :
+           rte == 203 ? '#c044ec' :
+           rte == 290 ? '#D15F27' :
+                        '#1c4ca5' ;
 }
 
 
@@ -99,19 +136,19 @@ function getColor(pct) {
 
 
 function requestmapdata() {
-    $.getJSON('mapviewdata', {sel_view: sel_view}, function(data) {
+    $.getJSON('mapviewdata', sel_args, function(data) {
 
         data = data.data;
         console.log(data);
         addGeoJson(data);
-        addLabel();
+        addLabel(sel_view);
 
     });
 
 }
 
 function addGeoJson(data) {
-    console.log(data);
+    //console.log(data);
     mymap.eachLayer(function (layer) {
     if (layer instanceof L.TileLayer == false) {
         mymap.removeLayer(layer);
@@ -128,7 +165,8 @@ function addGeoJson(data) {
                 style: function (feature) {
                     return {
                         color: getColor(data[rte]),
-                        weight: 3
+                        weight: 3,
+                        opacity: 0.8
                         };
                 },
                 
@@ -144,29 +182,10 @@ function addGeoJson(data) {
 
 }
 
-function highlightFeature(e) {
-    var layer = e.target;
-
-    layer.setStyle({
-        weight: 3,
-        color: '##009933',
-
-    });
-
-    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
-    }
-}
-
-/*var geojson;
-// ... our listeners
-geojson = L.geoJson();
-
-function resetHighlight(e) {
-    geojson.resetStyle(e.target);
-}*/
-
-function addLabel() {
+//add label to map
+function addLabel(sel_view) {
+    console.log(sel_view);
+    var title = sel_view.toUpperCase();
     if(hasLegend) {
         return
     }
@@ -177,17 +196,23 @@ function addLabel() {
 
     var div = L.DomUtil.create('div', 'info legend'),
         grades = [0, 20, 40, 60, 80],
-        labels = [];
+        labels = [(title.bold()).fontsize(3)],
+        from, to;
 
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < grades.length; i++) {
-        div.innerHTML +=
-            '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-    }
+        from = grades [i];
+        to = grades[i+1]-1;
 
-    return div;
-    };
+    labels.push(
+        '<i style="background:' + getColor(from + 1) + '"></i> ' +
+        from + (to ? '&ndash;' + to : '+'));
+        }
+        div.innerHTML = labels.join('<br>');
+        return div;
+
+
+        };
 
     legend.addTo(mymap);
     hasLegend = true;

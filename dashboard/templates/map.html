@@ -8,22 +8,39 @@
 <label>Select a Map View</label>
 <div class="map-view">
 
-<table class="fixed" width="800px">
+<table class="fixed" width="1000px">
+  <col width="180px" />
   <col width="200px" />
-  <col width="140px" />
-  <col width="200px" />
-  <col width="120px" />
+  <col width="280px" />
+  <col width="150px" />
   <col width="140px" />
   <tr>
-    <td><input class = "mapview" type="radio" name="viewList" value="completedsurvey">Completed Surveys</td>
-    <td><input class = "mapview" type="radio" name="viewList" value="income">Income</td>
-    <td><input class = "mapview" type="radio" name="viewList" value="poverty">Federal Poverty Level</td>
-    <td><input class = "mapview" type="radio" name="viewList" value="race">Race</td>
-    <td><input class = "mapview" type="radio" name="viewList" value="frequentrider">Frequent Rider</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="completed-survey">Completed Surveys</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="income">% Income Less Than 30k</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="poverty">% Below 150% Federal Poverty Level</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="minority">% Minority</td>
+    <td><input class = "mapview" type="radio" name="viewList" value="frequent-rider">% Frequent Rider</td>
+  </tr>
+
+</table>
+
+</div>
+
+<label>Select Day of Week</label>
+<div class="week-view">
+
+<table class="fixed" width="400px">
+  <col width="100px" />
+  <col width="100px" />
+  <col width="100px" />
+  <tr>
+    <td><input class = "checkweek" type="checkbox" name="vehicle" value="Weekday"> Weekday</td>
+    <td><input class = "checkweek" type="checkbox" name="vehicle" value="Weekend" > Weekend</td>
   </tr>
 </table>
 
 </div>
+
 </div>
 
 <div id="mapid">

@@ -47,19 +47,19 @@ def getjson():
 
 @app.route('/mapviewdata')
 def mapviewdata():
-    sel_view = request.args.get('sel_view')
+    sel_view = request.args.get('view')
     data = None
     if sel_view == 'income':
-        data = mapincome()
+        data = mapincome(request.args)
 
     if sel_view == 'race':
         data = maprace(sel_view)
 
     return jsonify(data=data)
 
-def mapincome():
+def mapincome(args):
     lowincomeresults = {}
-
+    where = buildconditions(args)
     results = db.session.execute("""
                                     WITH survey as (
                                         select *
@@ -67,7 +67,7 @@ def mapincome():
                                                 where
                                                     willing = '1' and
                                                     q23_income is not null and
-                                                    q23_income != '12'),
+                                                    q23_income != '12' {0}),
                                                     
                                         low_income as (
                                         select 
@@ -81,7 +81,7 @@ def mapincome():
                                         group by rte
                                         order by rte::integer)
 
-                                        select * from low_income""")
+                                        select * from low_income""".format(where))
 
     for row in results:
         print(row[0],row[1])
