@@ -39,6 +39,12 @@ function onEachFeature(feature, layer) {
                         + "<b>Direction:</b> " + feature.properties.dir_desc;
 
     layer.bindPopup(popupContent);
+    layer.on('mouseover', function(e) {
+        this.openPopup();
+    });
+    layer.on('mouseout', function(e) {
+        this.closePopup();
+    });
 
     /*layer.on({
         mouseover: highlightFeature,
