@@ -115,24 +115,6 @@ function getJson(jsonname) {
     });
 }
 
-function getBaseColor(rte) {
-    return rte == 90  ? '#d02c0f' :
-           rte == 100 ? '#0069AA' :
-           rte == 190 ? '#FFC425' :
-           rte == 200 ? '#008752' :
-           rte == 203 ? '#c044ec' :
-           rte == 290 ? '#D15F27' :
-                        '#1c4ca5' ;
-}
-
-
-function getColor(pct) {
- return pct > 80 ? '#990000' :
-        pct > 60 ? '#992600' :
-        pct > 40 ? '#997300' :
-        pct > 20 ? '#739900' :
-                   '#269900';
-}
 
 
 function requestmapdata() {
@@ -216,4 +198,23 @@ function addLabel(sel_view) {
 
     legend.addTo(mymap);
     hasLegend = true;
+}
+
+function getBaseColor(rte) {
+    return rte == 90  ? '#d02c0f' :
+           rte == 100 ? '#0069AA' :
+           rte == 190 ? '#FFC425' :
+           rte == 200 ? '#008752' :
+           rte == 203 ? '#c044ec' :
+           rte == 290 ? '#D15F27' :
+                        '#1c4ca5' ;
+}
+
+
+function getColor(pct) {
+ return pct > 80 ? '#990000' :
+        pct > 60 ? '#992600' :
+        pct > 40 ? '#997300' :
+        pct > 20 ? '#739900' :
+                   '#269900';
 }

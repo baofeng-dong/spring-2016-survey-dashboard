@@ -52,8 +52,8 @@ def mapviewdata():
     if sel_view == 'income':
         data = mapincome(request.args)
 
-    if sel_view == 'race':
-        data = maprace(sel_view)
+    if sel_view == 'fpl':
+        data = mapfpl(request.args)
 
     return jsonify(data=data)
 
@@ -87,6 +87,37 @@ def mapincome(args):
         print(row[0],row[1])
         lowincomeresults[row[0]] = float(row[1])
     return lowincomeresults
+
+
+def mapfpl(args):
+    fplresults = {}
+    where = buildconditions(args)
+    results = db.session.execute("""
+                                    WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                fpl_150 is not null {0}),
+                                                
+                                    below_fpl as (
+                                    select 
+
+                                        rte,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
+                                            from survey where s.rte=rte)::numeric,2) as pct
+                                    from survey as s
+                                    where fpl_150 = '1'
+                                    group by rte
+                                    order by rte::integer)
+
+                                    select * from below_fpl""".format(where))
+
+    for row in results:
+        print(row[0],row[1])
+        fplresults[row[0]] = float(row[1])
+    return fplresults
 
 @app.route('/sroutes')
 def sroutes():
