@@ -58,6 +58,9 @@ def mapviewdata():
     if sel_view == 'minority':
         data = mapminority(request.args)
 
+    if sel_view == 'frequent-rider':
+        data = mapfreqrider(request.args)
+
     return jsonify(data=data)
 
 def mapincome(args):
@@ -152,6 +155,37 @@ def mapminority(args):
         print(row[0],row[1])
         minorityresults[row[0]] = float(row[1])
     return minorityresults
+
+
+def mapfreqrider(args):
+    frequencyresults = {}
+    where = buildconditions(args)
+    results = db.session.execute("""
+                                    WITH survey as (
+                                    select *
+                                            from fare_survey_2016_clean 
+                                            where
+                                                willing = '1' and
+                                                q3_trip_group is not null {0}),
+                                                
+                                    fre_rider as (
+                                    select 
+
+                                        rte,
+                                        round( sum(weight_final) * 100 / (
+                                            select sum(weight_final)
+                                            from survey where s.rte=rte)::numeric,2) as pct
+                                    from survey as s
+                                    where q3_trip_group = '4'
+                                    group by rte
+                                    order by rte::integer)
+
+                                    select * from fre_rider""".format(where))
+
+    for row in results:
+        print(row[0],row[1])
+        frequencyresults[row[0]] = float(row[1])
+    return frequencyresults
 
 @app.route('/sroutes')
 def sroutes():

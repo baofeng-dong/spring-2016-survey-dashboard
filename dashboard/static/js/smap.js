@@ -174,7 +174,7 @@ function addLabel() {
     legend.onAdd = function (map) {
 
     var div = L.DomUtil.create('div', 'info legend'),
-        grades = [0, 10, 20, 30, 40, 50, 60],
+        grades = [0, 10, 20, 30, 40, 50, 60, 70],
         labels = [];
         //labels = [(title.bold()).fontsize(3)],
         //from, to;
@@ -234,11 +234,12 @@ function getColor(pct) {
 
 
 function getLongColor(pct) {
- return pct > 60 ? '#ff0000' :
-        pct > 50 ? '#ff4000' :
-        pct > 40 ? '#ff8000' :
-        pct > 30 ? '#ffbf00' :
-        pct > 20 ? '#ffff00' :
-        pct > 10 ? '#bfff00' :
+ return pct > 70 ? '#ff0000' :
+        pct > 60 ? '#ff4000' :
+        pct > 50 ? '#ff8000' :
+        pct > 40 ? '#ffbf00' :
+        pct > 30 ? '#ffff00' :
+        pct > 20 ? '#bfff00' :
+        pct > 10 ? '#80ff00' :
                    '#80ff00';
 }
