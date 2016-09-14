@@ -100,9 +100,9 @@ function getJson(jsonname) {
         var geoLayer = L.geoJson(data, {
                 style: function (feature) {
                     return {
-                        color: getBaseColor(feature.properties.rte),
-                        weight: 2.5,
-                        opacity: 0.80
+                            color: getBaseColor(feature.properties.rte),
+                            weight: 2.5,
+                            opacity: 0.80
                         };
                 },
                 
@@ -146,9 +146,9 @@ function addGeoJson(data) {
             var geoLayer = L.geoJson(routegeoJson, {
                 style: function (feature) {
                     return {
-                        color: getColor(data[rte]),
-                        weight: 3,
-                        opacity: 0.8
+                                color: getColor(data[rte]),
+                                weight: 3,
+                                opacity: 0.8
                         };
                 },
                 
@@ -159,15 +159,12 @@ function addGeoJson(data) {
             controlLayers.addOverlay(geoLayer, rte + " " + "-" + " " + routegeoJson.features[0].properties.rte_desc);
         }
      }
-     
-
-
 }
 
 //add label to map
-function addLabel(sel_view) {
+function addLabel() {
     console.log(sel_view);
-    var title = sel_view.toUpperCase();
+    //var title = sel_view.toUpperCase();
     if(hasLegend) {
         return
     }
@@ -177,28 +174,44 @@ function addLabel(sel_view) {
     legend.onAdd = function (map) {
 
     var div = L.DomUtil.create('div', 'info legend'),
-        grades = [0, 20, 40, 60, 80],
-        labels = [(title.bold()).fontsize(3)],
-        from, to;
+        grades = [0, 10, 20, 30, 40, 50, 60],
+        labels = [];
+        //labels = [(title.bold()).fontsize(3)],
+        //from, to;
 
     // loop through our density intervals and generate a label with a colored square for each interval
-    for (var i = 0; i < grades.length; i++) {
+    /*for (var i = 0; i < grades.length; i++) {
         from = grades [i];
         to = grades[i+1]-1;
 
     labels.push(
-        '<i style="background:' + getColor(from + 1) + '"></i> ' +
+        '<i style="background:' + getLongColor(from + 1) + '"></i> ' +
         from + (to ? '&ndash;' + to : '+'));
         }
         div.innerHTML = labels.join('<br>');
-        return div;
+        return div;*/
+    for (var i = 0; i < grades.length; i++) {
+    div.innerHTML +=
+        '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+    }
+
+    return div;
 
 
         };
+    /*;(function($){
+        // your code
+        $(".mapview").addEventListener('click', function() {
+        legend.addTo(mymap);
+    })($);
+    
+    })*/
 
     legend.addTo(mymap);
     hasLegend = true;
 }
+
 
 function getBaseColor(rte) {
     return rte == 90  ? '#d02c0f' :
@@ -217,4 +230,15 @@ function getColor(pct) {
         pct > 40 ? '#997300' :
         pct > 20 ? '#739900' :
                    '#269900';
+}
+
+
+function getLongColor(pct) {
+ return pct > 60 ? '#ff0000' :
+        pct > 50 ? '#ff4000' :
+        pct > 40 ? '#ff8000' :
+        pct > 30 ? '#ffbf00' :
+        pct > 20 ? '#ffff00' :
+        pct > 10 ? '#bfff00' :
+                   '#80ff00';
 }
