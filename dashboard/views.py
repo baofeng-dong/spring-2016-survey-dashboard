@@ -1212,7 +1212,7 @@ def vehicle(qnum,args):
     app.logger.debug(where)
     results = db.session.execute("""WITH survey as (
                                     select *
-                                            from fare_survey_2016 
+                                            from fare_survey_2016_clean 
                                             where
                                                 willing = '1' and
                                                 q20_vehicle_available is not null {0}),
