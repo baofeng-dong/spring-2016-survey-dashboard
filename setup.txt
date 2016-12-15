@@ -1,11 +1,11 @@
-# Copyright (C) 2015 Jeffrey Meyers
+# Copyright (C) 2016 Baofeng Dong 
 # This program is released under the "MIT License".
 # Please see the file COPYING in the source
 # distribution of this software for license terms.
 
 # clone project
-git clone https://github.com/TransitSurveyor/Dashboard.git
-cd Dashboard
+git clone https://gitlab.trimet.org/gis-survey/fare-dashboard.git
+cd fare-dashboard
 
 # create virtual environment and install python requirments
 # some of the requirments may require other packages to be
