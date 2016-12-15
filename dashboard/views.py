@@ -428,7 +428,7 @@ def transferdata(qnum, args):
                     when q1_transfer = '3' then 'Transfer 2 times'
                     when q1_transfer = '4' then 'Transfer 3 or more'
                 end as Transfer,
-                round(sum(weight_final)::numeric,1) as count,
+                round(sum(weight_final)::numeric,0) as count,
                 round( sum(weight_final) * 100 / (
                     select sum(weight_final)
                     from survey)::numeric,2) as pct
@@ -439,9 +439,9 @@ def transferdata(qnum, args):
             select * from survey_tran""".format(where))
     for row in results:
         print(row[0],row[1],row[2])
-        transferresults.append([row[0],float(row[1]),float(row[2])])
+        transferresults.append([row[0],int(row[1]),float(row[2])])
         labels.append(row[0])
-        bar_chart.add(row[0],[{'value':float(row[1])}])
+        bar_chart.add(row[0],[{'value':int(row[1])}])
     #bar_chart.x_labels = labels
     for label in labels:
         print(label)
@@ -474,7 +474,7 @@ def tripdata(qnum, args):
                                             when q3_trip_group = '3' then 'Regular rider (7-17 trips/month)'
                                             when q3_trip_group = '4' then 'Frequent rider (18 trips/month or more)'
                                         end as triprider,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
                                     from survey
                                     group by q3_trip_group::integer
@@ -483,8 +483,8 @@ def tripdata(qnum, args):
                                 select * from tripgroup""".format(where))
     for row in results:
         print(row[0],row[1],row[2])
-        tripresults.append([str(row[0]),float(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),float(row[1]))
+        tripresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
 
@@ -513,7 +513,7 @@ def agencydata(qnum, args):
                     when q4_fare_agency = '2' then 'C-TRAN fare'
                     when q4_fare_agency = '3' then 'Streetcar fare'
                 end as Fareagency,
-                round(sum(weight_final)::numeric,1) as count,
+                round(sum(weight_final)::numeric,0) as count,
                 round( sum(weight_final) * 100 / (
                     select sum(weight_final)
                     from survey)::numeric,2) as pct
@@ -524,8 +524,8 @@ def agencydata(qnum, args):
             select * from fare_agency""".format(where))
     for row in results:
         print(row[0],row[1],row[2])
-        agencyresults.append([str(row[0]),float(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),float(row[1]))
+        agencyresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
 
@@ -561,7 +561,7 @@ def faretype(qnum, args):
                     when q5_fare_type = '8' then 'Honored Citizen Downtown Pass'
                     when q5_fare_type = '9' then 'Other'
                 end as Faretype,
-                round(sum(weight_final)::numeric,1) as count,
+                round(sum(weight_final)::numeric,0) as count,
                 round( sum(weight_final) * 100 / (
                     select sum(weight_final)
                     from survey)::numeric,2) as pct
@@ -573,8 +573,8 @@ def faretype(qnum, args):
             
     for row in results:
         print(row[0],row[1],row[2])
-        fareresults.append([row[0],float(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),float(row[1]))
+        fareresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
@@ -609,7 +609,7 @@ def purchasetype(qnum, args):
                     when q6_purchase_type = '7' then 'Monthly Pass'
                     when q6_purchase_type = '8' then 'Annual Pass'
                 end as purchasetype,
-                round(sum(weight_final)::numeric,1) as count,
+                round(sum(weight_final)::numeric, 0) as count,
                 round( sum(weight_final) * 100 / (
                     select sum(weight_final)
                     from survey)::numeric,2) as pct
@@ -621,8 +621,8 @@ def purchasetype(qnum, args):
             
     for row in results:
         print(row[0],row[1],row[2])
-        purchaseresults.append([row[0],float(row[1]),float(row[2])])
-        bar_chart.add(row[0],float(row[1]))
+        purchaseresults.append([row[0],int(row[1]),float(row[2])])
+        bar_chart.add(row[0],int(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
@@ -646,7 +646,7 @@ def daypass(qnum, args):
                                     dayfare as (
                                         select
                                             q7_day_fare::integer,
-                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(sum(weight_final)::numeric,0) as count,
                                             round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
                                         from survey
                                         group by q7_day_fare::integer
@@ -656,8 +656,8 @@ def daypass(qnum, args):
             
     for row in results:
         print(row[0],row[1],row[2])
-        daypassresults.append([str(row[0]),float(row[1]),float(row[2])])
-        bar_chart.add(str(row[0]),float(row[1]))
+        daypassresults.append([str(row[0]),int(row[1]),float(row[2])])
+        bar_chart.add(str(row[0]),int(row[1]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
     
@@ -684,7 +684,7 @@ def singlefare(qnum, args):
                                                 when q8_single_fare= '1' then 'One-way trip'
                                                 when q8_single_fare='2' then 'Round-trip'
                                             end as faretrip,
-                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(sum(weight_final)::numeric,0) as count,
                                             round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
                                         from survey
                                         group by q8_single_fare
@@ -694,7 +694,7 @@ def singlefare(qnum, args):
 
     for row in results:
         print(row[0],row[1],row[2])
-        singlefareresults.append([row[0],float(row[1]),float(row[2])])
+        singlefareresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -730,7 +730,7 @@ def purloc(qnum, args):
                                 when q9_purchase_loc = '9' then 'Social Service Agency'
                                 when q9_purchase_loc = '10' then 'Other'
                             end as Purchaseloc,
-                            round(sum(weight_final)::numeric,1) as count,
+                            round(sum(weight_final)::numeric,0) as count,
                             round( sum(weight_final) * 100 / (
                                 select sum(weight_final)
                                 from survey)::numeric,2) as pct
@@ -742,7 +742,7 @@ def purloc(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        locationresults.append([row[0],float(row[1]),float(row[2])])
+        locationresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -777,7 +777,7 @@ def payment(qnum, args):
                                             when q10_purchase_types = '9' then 'Cash + Ohter Ways'
                                             when q10_purchase_types = '10' then 'Not cash but other combinations'
                                         end as payment,
-                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(sum(weight_final)::numeric,0) as count,
                                             round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
                                             from survey
                                             group by payment
@@ -788,7 +788,7 @@ def payment(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        paymentresults.append([row[0],float(row[1]),float(row[2])])
+        paymentresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -817,7 +817,7 @@ def college(qnum, args):
                                             when q11_college = '2' then 'Yes part time'
                                             when q11_college = '3' then 'Yes full time'
                                         end as college,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( sum(weight_final) * 100 / (
                                             select sum(weight_final)
                                             from survey)::numeric,2) as pct
@@ -829,7 +829,7 @@ def college(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        collegeresults.append([row[0],float(row[1]),float(row[2])])
+        collegeresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -854,7 +854,7 @@ def collegeattend(qnum, args):
                                     collegeall as (
                                             select 
                                                 unnest(string_to_array(q12_college_attend,' ')) as college, 
-                                                round(sum(weight_final)::numeric,1) as count,
+                                                round(sum(weight_final)::numeric,0) as count,
                                                 round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
                                                 from survey
                                                 group by college
@@ -885,7 +885,7 @@ def collegeattend(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        attendresults.append([row[0],float(row[1]),float(row[2])])
+        attendresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -914,7 +914,7 @@ def smartphone(qnum, args):
                                             when q13_smartphone = '2' then 'No'
                                             when q13_smartphone = '3' then 'Do not know'
                                         end as smartphone,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( sum(weight_final) * 100 / (
                                             select sum(weight_final)
                                             from survey)::numeric,2) as pct
@@ -926,7 +926,7 @@ def smartphone(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        smartphoneresults.append([row[0],float(row[1]),float(row[2])])
+        smartphoneresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -955,7 +955,7 @@ def internet(qnum, args):
                                             when q14_internet = '2' then 'No'
                                             when q14_internet = '3' then 'Don not know'
                                         end as smartphone,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( sum(weight_final) * 100 / (
                                             select sum(weight_final)
                                             from survey)::numeric,2) as pct
@@ -967,7 +967,7 @@ def internet(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        internetresults.append([row[0],float(row[1]),float(row[2])])
+        internetresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1042,7 +1042,7 @@ def gender(qnum, args):
                                             when q16_gender = '2' then 'Male'
                                             when q16_gender = '3' then 'Other'
                                         end as gender,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( sum(weight_final) * 100 / (
                                             select sum(weight_final)
                                             from survey)::numeric,2) as pct
@@ -1055,7 +1055,7 @@ def gender(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        genderresults.append([row[0],float(row[1]),float(row[2])])
+        genderresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1088,7 +1088,7 @@ def race(qnum, args):
                                             when q17_race = '6' then 'Multi-racial/bi-racial'
                                             when q17_race = '7' then 'Other'
                                         end as race,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
                                         from survey
                                         group by race
@@ -1099,7 +1099,7 @@ def race(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        raceresults.append([row[0],float(row[1]),float(row[2])])
+        raceresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1128,7 +1128,7 @@ def disability(qnum, args):
                                             when q18_disability = '1' then 'Yes'
                                             when q18_disability = '2' then 'No'
                                         end as disability,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( sum(weight_final) * 100 / (
                                             select sum(weight_final)
                                             from survey)::numeric,2) as pct
@@ -1140,7 +1140,7 @@ def disability(qnum, args):
 
     for row in results:
         print(row[0],row[1],row[2])
-        disabilityresults.append([row[0],float(row[1]),float(row[2])])
+        disabilityresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1165,7 +1165,7 @@ def transit(qnum,args):
                                     transitall as (
                                             select 
                                                 unnest(string_to_array(q19_transit_options,' ')) as transit, 
-                                                round(sum(weight_final)::numeric,1) as count,
+                                                round(sum(weight_final)::numeric,0) as count,
                                                 round(sum(weight_final)*100/(select sum(weight_final) from survey)::numeric,2) as pct
                                                 from survey
                                                 group by transit
@@ -1223,7 +1223,7 @@ def vehicle(qnum,args):
                                             when q20_vehicle_available = '1' then 'Yes'
                                             when q20_vehicle_available = '2' then 'No'
                                         end as vehicle,
-                                        count(*) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( count(*) * 100 / (
                                             select count(*)
                                             from survey)::numeric,2) as pct
@@ -1259,7 +1259,7 @@ def house(qnum,args):
                                                 q21_house_count is not null {0}),
                                     housecount as (
                                             select q21_house_count::integer,
-                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(sum(weight_final)::numeric,0) as count,
                                             round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
                                             from survey
                                             group by q21_house_count::integer
@@ -1269,7 +1269,7 @@ def house(qnum,args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        houseresults.append([str(row[0]),float(row[1]),float(row[2])])
+        houseresults.append([str(row[0]),int(row[1]),float(row[2])])
         bar_chart.add(str(row[0]),float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1293,7 +1293,7 @@ def vecount(qnum, args):
 
                                     vehiclecount as (
                                     select q22_vehicle_count::integer,
-                                    round(sum(weight_final)::numeric,1) as count,
+                                    round(sum(weight_final)::numeric,0) as count,
                                     round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
                                     from survey
                                     group by q22_vehicle_count::integer
@@ -1303,7 +1303,7 @@ def vecount(qnum, args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        vecountresults.append([str(row[0]),float(row[1]),float(row[2])])
+        vecountresults.append([str(row[0]),int(row[1]),float(row[2])])
         bar_chart.add(str(row[0]),float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1364,7 +1364,7 @@ def incomequery(args):
                                             when q23_income = '10' then '$90,000 - $99,999'
                                             when q23_income = '11' then '$100,000 or more'
                                         end as income,
-                                        round(sum(weight_final)::numeric,1) as count,
+                                        round(sum(weight_final)::numeric,0) as count,
                                         round( sum(weight_final) * 100 / (
                                             select sum(weight_final)
                                             from survey)::numeric,2) as pct
@@ -1387,7 +1387,7 @@ def income(qnum,args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        incomeresults.append([row[0],float(row[1]),float(row[2])])
+        incomeresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
@@ -1416,7 +1416,7 @@ def poverty(qnum,args):
                                                 when fpl_150 = '0' then 'Above 150% poverty level'
                                                 when fpl_150 = '1' then 'At or below 150% poverty level'
                                             end as povertylevel,
-                                            round(sum(weight_final)::numeric,1) as count,
+                                            round(sum(weight_final)::numeric,0) as count,
                                             round(100*sum(weight_final)/(select sum(weight_final) from survey)::numeric,2) as pct
                                         from survey
                                         group by fpl_150
@@ -1426,7 +1426,7 @@ def poverty(qnum,args):
                 
     for row in results:
         print(row[0],row[1],row[2])
-        povertyresults.append([row[0],float(row[1]),float(row[2])])
+        povertyresults.append([row[0],int(row[1]),float(row[2])])
         bar_chart.add(row[0],float(row[2]))
     
     bar_chart.render_to_file(os.path.join(DIRPATH, "static/image/{0}{1}.svg".format('q', qnum)))
