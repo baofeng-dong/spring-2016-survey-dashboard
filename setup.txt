@@ -4,8 +4,8 @@
 # distribution of this software for license terms.
 
 # clone project
-git clone https://gitlab.trimet.org/gis-survey/fare-dashboard.git
-cd fare-dashboard
+git clone project git
+cd to project folder
 
 # create virtual environment and install python requirments
 # some of the requirments may require other packages to be
