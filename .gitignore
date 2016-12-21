@@ -4,4 +4,5 @@
 env/
 config.py
 env2/
+load/
 static/image/*.svg
