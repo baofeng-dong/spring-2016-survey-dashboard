@@ -3,7 +3,11 @@
 
 <html>
 <head>
-    <title>Fare Survey Results</title>
+    <title>Spring 2016 Fare Survey</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" href="{{ url_for('index') }}static/image/favicon-16x16.png">
     <script src="https://code.jquery.com/jquery-2.2.3.js"></script>
     <script type="text/javascript" src="{{ url_for('index') }}static/js/svg.jquery.js"></script>
     <script type="text/javascript" src="{{ url_for('index') }}static/js/pygal-tooltips.js"></script>
@@ -17,32 +21,34 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
 </head>
 
-<body style="padding-top:50px">
+<body>
 
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="{{ url_for('index') }}">Fare Survey</a>
+<header>
+  <nav class="navbar">
+    <div class="container">
+
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand-tm navbar-left" href="http://trimet.org/"><img src="{{ url_for('index') }}static/image/trimet-logo.svg" height="30" class="inline-block align-middle" alt=""></a>
+      </div>
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a class="my-text" href="https://gissurvey-test.trimet.org"><b>Survey Home</b></a></li>
+          <li><a class="my-text" href="{{ url_for('index') }}introduction"><b>Introduction</b></a></li>
+          <li><a class="my-text" href="{{ url_for('index') }}fareresults"><b>Results</b></a></li>
+          <li><a class="my-text" href="{{ url_for('index') }}map"><b>Map</b></a></li>
+        </ul>
+      </div>
+      
     </div>
-    <div class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right">
-
-<li><a href="{{ url_for('index') }}introduction"><b>Introduction</b></a></li>
-<li><a href="{{ url_for('index') }}sroutes"><b>Overview</b></a></li>
-<li><a href="{{ url_for('index') }}fareresults"><b>Results</b></a></li>
-<li><a href="{{ url_for('index') }}map"><b>Map</b></a></li>
-
-
-      </ul>
-    </div>
-  </div>
-</div>
+  </nav>
+</header>
 
 <div id='content'>
     {% block content %}
