@@ -154,3 +154,67 @@ table.fixed td {
     background: #141414;
     color: #ffffff;
 }
+
+/* Navbar styling */
+.navbar {
+    background: #084c8d;
+    color: #fff;
+    min-height: 60px;
+    position: relative;
+    /* override bootstrap */
+    border: none;
+    border-radius: 0;
+}
+
+.navbar a {
+    color: inherit;
+}
+
+.navbar-brand .navbar-brand {
+    min-height: 60px;
+    line-height: 30px;
+}
+
+.navbar-brand-tm {
+    float: left;
+    height: 60px;
+    padding: 15px 15px;
+    padding-top: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    font-size: 18px;
+    line-height: 30px;
+}
+
+.navbar-header .navbar-header {
+    min-height: 60px;
+}
+
+.navbar .navbar {
+    min-height: 60px;
+}
+
+.navbar-nav > li > a.my-text {
+    min-height: 60px;
+    padding-top: 20px;
+}
+
+.navbar-nav >li > a > b {
+    font-size: 15px;
+}
+
+.navbar-nav > li > a:hover, .navbar-nav > li.nav-active, 
+.navbar .navbar-nav .open .dropdown-menu>li>a:hover  {
+    background-color: #fff;
+    color: #000;
+}
+
+.navbar .navbar-nav .open .dropdown-menu>li>a, .navbar .navbar-nav .open .dropdown-menu {
+    background-color: #084c8d;
+    color: white;
+  }
+
+.navbar .icon-bar {
+    background-color: #fff;
+}
